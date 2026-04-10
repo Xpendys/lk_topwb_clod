@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — ТопВТоп{% endblock %}
+
+{% block content %}
+<div class="card narrow">
+    <h1>Регистрация партнёра</h1>
+    <form method="post" action="/register">
+        <label>
+            Имя
+            <input type="text" name="first_name" required value="{{ form.first_name or '' }}">
+        </label>
+        <label>
+            Фамилия
+            <input type="text" name="last_name" required value="{{ form.last_name or '' }}">
+        </label>
+        <label>
+            Email
+            <input type="email" name="email" required value="{{ form.email or '' }}">
+        </label>
+        <label>
+            Пароль (минимум 6 символов)
+            <input type="password" name="password" minlength="6" required>
+        </label>
+        <label>
+            С какой платформой работаете
+            <select name="platform" required>
+                <option value="wb" {% if form.platform == 'wb' %}selected{% endif %}>Wildberries</option>
+                <option value="ozon" {% if form.platform == 'ozon' %}selected{% endif %}>Ozon</option>
+                <option value="both" {% if form.platform == 'both' %}selected{% endif %}>Обе</option>
+            </select>
+        </label>
+        <button type="submit" class="btn-primary big full">Зарегистрироваться</button>
+    </form>
+    <p class="muted center">Уже есть аккаунт? <a href="/login">Войти</a></p>
+</div>
+{% endblock %}

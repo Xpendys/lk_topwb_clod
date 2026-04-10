@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:bcip.ru)",
+      "WebFetch(domain:teletype.app)",
+      "WebFetch(domain:delomatika.ru)",
+      "Bash(python -m venv .venv)",
+      "Bash(.venv/Scripts/python.exe -m pip install --quiet --upgrade pip)",
+      "Bash(.venv/Scripts/python.exe -m pip install --quiet -r requirements.txt)",
+      "Bash(.venv/Scripts/python.exe --version)",
+      "Bash(.venv/Scripts/python.exe -c \"import sys; print\\(sys.version_info\\)\")",
+      "Bash(.venv/Scripts/python.exe -c \"from app.main import app; print\\('OK', app.title\\)\")"
+    ]
+  }
+}

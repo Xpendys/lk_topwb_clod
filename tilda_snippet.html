@@ -1,0 +1,78 @@
+<!--
+=================================================================
+   ВСТАВЬ ЭТОТ КОД В TILDA
+=================================================================
+
+Куда вставлять:
+   1) Зайди в Tilda → Настройки сайта → Ещё → "HTML-код для вставки внутрь HEAD"
+      (либо открой каждую страницу с формой и вставь блок T123 "HTML-код" в самый верх).
+   2) Сохрани и опубликуй сайт.
+
+Что делает:
+   1) Когда посетитель приходит по ссылке вида https://www.toptopwb.ru/?ref=AB12CD —
+      сохраняет код AB12CD в cookie на 60 дней.
+   2) При каждой загрузке страницы добавляет во ВСЕ формы Tilda скрытое поле
+      <input name="REFERER" value="AB12CD"> — Tilda передаст его в АМО как
+      доп.поле контакта (см. README, шаг "Настройка маппинга в Tilda").
+
+ВАЖНО: имя поля REFERER должно совпадать с именем поля в Контакте в АМО
+(мы создали поле REFERER в карточке Контакта).
+-->
+
+<script>
+(function () {
+    var REF_PARAM = 'ref';
+    var COOKIE_NAME = 'ttwb_ref';
+    var FORM_FIELD = 'REFERER';
+    var COOKIE_DAYS = 60;
+
+    function getQueryParam(name) {
+        var m = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.search);
+        return m ? decodeURIComponent(m[1]).toUpperCase() : null;
+    }
+
+    function setCookie(name, value, days) {
+        var d = new Date();
+        d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = name + '=' + encodeURIComponent(value) +
+            ';expires=' + d.toUTCString() +
+            ';path=/;SameSite=Lax';
+    }
+
+    function getCookie(name) {
+        var match = document.cookie.match(new RegExp('(?:^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    // 1) Если в URL есть ?ref=XXXXXX — сохраняем
+    var fromUrl = getQueryParam(REF_PARAM);
+    if (fromUrl && /^[A-Z0-9]{4,12}$/.test(fromUrl)) {
+        setCookie(COOKIE_NAME, fromUrl, COOKIE_DAYS);
+    }
+
+    // 2) Подставляем в формы. Tilda монтирует формы постепенно — используем MutationObserver.
+    function injectIntoForms() {
+        var ref = getCookie(COOKIE_NAME);
+        if (!ref) return;
+
+        var forms = document.querySelectorAll('form.t-form, form.js-form');
+        forms.forEach(function (form) {
+            if (form.querySelector('input[name="' + FORM_FIELD + '"]')) return;
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = FORM_FIELD;
+            input.value = ref;
+            form.appendChild(input);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectIntoForms);
+    } else {
+        injectIntoForms();
+    }
+
+    var observer = new MutationObserver(injectIntoForms);
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>

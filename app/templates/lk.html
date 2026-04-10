@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — ТопВТоп{% endblock %}
+
+{% block content %}
+<h1>Привет, {{ user.first_name }}!</h1>
+
+<section class="card">
+    <h2>Твоя реферальная ссылка</h2>
+    <div class="ref-box">
+        <input id="refLink" type="text" readonly value="{{ ref_link }}">
+        <button type="button" class="btn-primary" onclick="copyRef()">Скопировать</button>
+    </div>
+    <p class="muted">Делись этой ссылкой. Когда клиент по ней оставит заявку и оплатит сделку — тебе автоматически начислится {{ commission_percent }}% от суммы.</p>
+</section>
+
+<section class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.referrals_count }}</div>
+        <div class="stat-label">Приглашено клиентов</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.paid_deals_count }}</div>
+        <div class="stat-label">Оплаченных сделок</div>
+    </div>
+    <div class="stat-card highlight">
+        <div class="stat-value">{{ "{:,}".format(stats.balance).replace(",", " ") }} ₽</div>
+        <div class="stat-label">К выплате</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ "{:,}".format(stats.total_paid_out).replace(",", " ") }} ₽</div>
+        <div class="stat-label">Уже выплачено</div>
+    </div>
+</section>
+
+<section class="card">
+    <h2>Приглашённые клиенты</h2>
+    {% if referrals %}
+    <table class="data">
+        <thead>
+            <tr>
+                <th>Клиент</th>
+                <th>Дата</th>
+                <th>Оплачено сделок</th>
+                <th>Заработано</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in referrals %}
+            <tr>
+                <td>{{ r.contact_label }}</td>
+                <td>{{ r.first_seen_at[:10] }}</td>
+                <td>{{ r.deals_count }}</td>
+                <td>{{ "{:,}".format(r.earned).replace(",", " ") }} ₽</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">Пока никто не пришёл по твоей ссылке. Поделись ссылкой выше — и здесь появятся клиенты.</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>История начислений</h2>
+    {% if commissions %}
+    <table class="data">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Клиент</th>
+                <th>Сумма сделки</th>
+                <th>Твоя комиссия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in commissions %}
+            <tr>
+                <td>{{ c.created_at[:10] }}</td>
+                <td>{{ c.contact_label }}</td>
+                <td>{{ "{:,}".format(c.deal_budget).replace(",", " ") }} ₽</td>
+                <td><strong>{{ "{:,}".format(c.commission_amount).replace(",", " ") }} ₽</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">Здесь будут отображаться начисления, как только приглашённые клиенты оплатят сделки.</p>
+    {% endif %}
+</section>
+
+<script>
+function copyRef() {
+    const inp = document.getElementById('refLink');
+    inp.select();
+    inp.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(inp.value);
+    const btn = event.target;
+    const old = btn.textContent;
+    btn.textContent = 'Скопировано!';
+    setTimeout(() => { btn.textContent = old; }, 1500);
+}
+</script>
+{% endblock %}
