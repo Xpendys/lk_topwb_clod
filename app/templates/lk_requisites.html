@@ -1,0 +1,24 @@
+{% extends "lk_base.html" %}
+{% set active_page = 'requisites' %}
+{% block title %}Реквизиты — Топай в ТОП{% endblock %}
+
+{% block lk_content %}
+<h1>Реквизиты для выплат</h1>
+<p class="muted">Укажи куда переводить деньги. Менеджер увидит эти данные при формировании выплаты.</p>
+
+<section class="card" style="max-width: 520px;">
+    <form method="post" action="/lk/requisites">
+        <label>
+            Номер телефона или карты
+            <input type="text" name="requisites_phone" placeholder="+7 900 000-00-00 или 4276 **** **** 1234"
+                   value="{{ req.requisites_phone or '' }}" required>
+        </label>
+        <label>
+            ФИО получателя
+            <input type="text" name="requisites_name" placeholder="Иванов Иван Иванович"
+                   value="{{ req.requisites_name or '' }}" required>
+        </label>
+        <button type="submit" class="btn-primary" style="margin-top:8px;">Сохранить</button>
+    </form>
+</section>
+{% endblock lk_content %}

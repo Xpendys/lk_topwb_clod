@@ -11,9 +11,9 @@ from fastapi.templating import Jinja2Templates
 
 from . import auth, stats, webhook
 from .config import settings
-from .db import init_db
+from .db import db_cursor, init_db
 
-app = FastAPI(title="ТопВТоп · Реферальная программа")
+app = FastAPI(title="Топай в ТОП · Реферальная программа")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
@@ -143,6 +143,46 @@ def lk(request: Request):
         ref_link=ref_link,
         commission_percent=settings.COMMISSION_PERCENT,
     )
+
+
+@app.get("/lk/requisites", response_class=HTMLResponse)
+def requisites_get(request: Request):
+    redirect, user = require_login(request)
+    if redirect:
+        return redirect
+    with db_cursor() as cur:
+        cur.execute("SELECT requisites_phone, requisites_name FROM users WHERE id=?", (user["id"],))
+        row = cur.fetchone()
+        req = dict(row) if row else {}
+    return render(request, "lk_requisites.html", req=req)
+
+
+@app.post("/lk/requisites", response_class=HTMLResponse)
+def requisites_post(
+    request: Request,
+    requisites_phone: str = Form(...),
+    requisites_name: str = Form(...),
+):
+    redirect, user = require_login(request)
+    if redirect:
+        return redirect
+    with db_cursor() as cur:
+        cur.execute("UPDATE users SET requisites_phone=?, requisites_name=? WHERE id=?",
+                    (requisites_phone, requisites_name, user["id"]))
+    with db_cursor() as cur:
+        cur.execute("SELECT requisites_phone, requisites_name FROM users WHERE id=?", (user["id"],))
+        req = dict(cur.fetchone())
+    return render(request, "lk_requisites.html", req=req, message="Реквизиты сохранены!")
+
+
+# ---------- админ ----------
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin_panel(request: Request, key: str = ""):
+    if key != settings.ALBATO_WEBHOOK_SECRET:
+        return HTMLResponse("<h1>403 Forbidden</h1>", status_code=403)
+    users = stats.get_all_users_admin()
+    return templates.TemplateResponse(request, "admin.html", {"users": users, "user": None})
 
 
 # ---------- health ----------

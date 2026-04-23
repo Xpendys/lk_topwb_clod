@@ -25,7 +25,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 
 from .config import settings
 from .db import db_cursor
@@ -67,10 +67,10 @@ def _ensure_referral(cur, user_id: int, amo_contact_id: Optional[int]) -> Option
 @router.post("/api/amo-webhook")
 async def amo_webhook(
     request: Request,
-    x_webhook_secret: str = Header(default=""),
+    secret: str = Query(default=""),
 ):
-    # 1) Проверка секрета
-    if x_webhook_secret != settings.ALBATO_WEBHOOK_SECRET:
+    # 1) Проверка секрета (передаётся как query-параметр ?secret=...)
+    if secret != settings.ALBATO_WEBHOOK_SECRET:
         raise HTTPException(status_code=401, detail="Bad secret")
 
     # 2) Парсим JSON. Albato может слать как application/json, так и form-data —

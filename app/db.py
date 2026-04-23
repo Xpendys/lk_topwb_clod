@@ -97,3 +97,9 @@ def init_db() -> None:
             CREATE INDEX IF NOT EXISTS idx_payouts_user ON payouts(user_id);
             """
         )
+        # Миграции: добавляем новые колонки если ещё нет
+        for _col, _def in [("requisites_phone", "TEXT"), ("requisites_name", "TEXT")]:
+            try:
+                cur.execute(f"ALTER TABLE users ADD COLUMN {_col} {_def}")
+            except Exception:
+                pass  # уже существует
