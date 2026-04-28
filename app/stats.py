@@ -93,3 +93,59 @@ def get_user_referrals(user_id: int) -> list[dict]:
             (user_id,),
         )
         return [dict(row) for row in cur.fetchall()]
+
+
+def get_all_users_admin() -> list[dict]:
+    """Все партнёры с балансом и реквизитами (для админ-панели)."""
+    with db_cursor() as cur:
+        cur.execute("""
+            SELECT
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.ref_code,
+                COALESCE(u.requisites_phone, '') AS requisites_phone,
+                COALESCE(u.requisites_bank, '') AS requisites_bank,
+                COALESCE(u.requisites_name, '') AS requisites_name,
+                COALESCE(SUM(c.commission_amount), 0) AS total_earned,
+                COALESCE(pp.total_paid, 0) AS total_paid_out,
+                COALESCE(SUM(c.commission_amount), 0) - COALESCE(pp.total_paid, 0) AS balance,
+                (SELECT COUNT(*) FROM referrals r WHERE r.user_id = u.id) AS referrals_count
+            FROM users u
+            LEFT JOIN commissions c ON c.user_id = u.id
+            LEFT JOIN (
+                SELECT user_id, SUM(amount) AS total_paid FROM payouts GROUP BY user_id
+            ) pp ON pp.user_id = u.id
+            GROUP BY u.id
+            ORDER BY balance DESC
+        """)
+        return [dict(row) for row in cur.fetchall()]
+
+
+def get_all_users_admin() -> list[dict]:
+    """Все партнёры с балансом и реквизитами (для админ-панели)."""
+    with db_cursor() as cur:
+        cur.execute("""
+            SELECT
+                u.id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.ref_code,
+                COALESCE(u.requisites_phone, '') AS requisites_phone,
+                COALESCE(u.requisites_bank, '') AS requisites_bank,
+                COALESCE(u.requisites_name, '') AS requisites_name,
+                COALESCE(SUM(c.commission_amount), 0) AS total_earned,
+                COALESCE(pp.total_paid, 0) AS total_paid_out,
+                COALESCE(SUM(c.commission_amount), 0) - COALESCE(pp.total_paid, 0) AS balance,
+                (SELECT COUNT(*) FROM referrals r WHERE r.user_id = u.id) AS referrals_count
+            FROM users u
+            LEFT JOIN commissions c ON c.user_id = u.id
+            LEFT JOIN (
+                SELECT user_id, SUM(amount) AS total_paid FROM payouts GROUP BY user_id
+            ) pp ON pp.user_id = u.id
+            GROUP BY u.id
+            ORDER BY balance DESC
+        """)
+        return [dict(row) for row in cur.fetchall()]

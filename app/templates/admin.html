@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — Топай в ТОП</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+        .admin-table-wrap table.data { min-width: 860px; }
+        .admin-table-wrap table.data th,
+        .admin-table-wrap table.data td { padding: 11px 10px; font-size: 13px; }
+        .admin-table-wrap table.data th:first-child,
+        .admin-table-wrap table.data td:first-child { padding-left: 20px; }
+        .admin-table-wrap table.data th:last-child,
+        .admin-table-wrap table.data td:last-child { padding-right: 20px; }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a href="#" class="brand"><img src="/static/logo.png" alt="Топай в ТОП" class="brand-logo"></a>
+        <span class="muted" style="font-size:13px;">Админ-панель</span>
+    </header>
+    <div class="admin-wrap">
+        <h1>Партнёры и выплаты</h1>
+        <p class="muted">Выделенная сумма — к выплате. Введите сумму и нажмите «Выплатить».</p>
+        {% if message %}<div class="alert alert-success" style="margin-bottom:20px;">{{ message }}</div>{% endif %}
+
+        <div class="admin-table-wrap">
+            <table class="data">
+                <thead>
+                    <tr>
+                        <th>Партнёр</th>
+                        <th>Банк</th>
+                        <th>Реквизиты</th>
+                        <th>ФИО</th>
+                        <th>Приглашено</th>
+                        <th>Заработано</th>
+                        <th>Выплачено</th>
+                        <th>К выплате</th>
+                        <th>Выплатить</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>
+                            <strong style="font-size:14px;">{{ u.first_name }} {{ u.last_name }}</strong><br>
+                            <span class="muted" style="font-size:12px;">{{ u.email }}</span>
+                        </td>
+                        <td>{{ u.requisites_bank or '—' }}</td>
+                        <td>
+                            {% if u.requisites_phone %}
+                                <span class="badge badge-green" style="white-space:nowrap;">{{ u.requisites_phone }}</span>
+                            {% else %}
+                                <span class="no-req">не указаны</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap; font-size:13px;">{{ u.requisites_name or '—' }}</td>
+                        <td style="text-align:center;">{{ u.referrals_count }}</td>
+                        <td style="white-space:nowrap;">{{ "{:,}".format(u.total_earned).replace(",", " ") }} ₽</td>
+                        <td style="white-space:nowrap;">{{ "{:,}".format(u.total_paid_out).replace(",", " ") }} ₽</td>
+                        <td style="white-space:nowrap;">
+                            {% if u.balance > 0 %}
+                                <span class="balance-pos">{{ "{:,}".format(u.balance).replace(",", " ") }} ₽</span>
+                            {% else %}
+                                <span class="muted">0 ₽</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form class="payout-form" method="post" action="/admin/payout?key={{ admin_key }}">
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <input type="number" name="amount" placeholder="Сумма" min="1"
+                                       value="{{ u.balance if u.balance > 0 else '' }}">
+                                <button type="submit">Выплатить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

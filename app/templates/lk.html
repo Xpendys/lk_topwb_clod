@@ -1,16 +1,17 @@
-{% extends "base.html" %}
-{% block title %}Личный кабинет — ТопВТоп{% endblock %}
+{% extends "lk_base.html" %}
+{% set active_page = 'home' %}
+{% block title %}Личный кабинет — Топай в ТОП{% endblock %}
 
-{% block content %}
-<h1>Привет, {{ user.first_name }}!</h1>
+{% block lk_content %}
+<h1>Здравствуйте, {{ user.first_name }}!</h1>
 
 <section class="card">
-    <h2>Твоя реферальная ссылка</h2>
+    <h2>Ваша реферальная ссылка</h2>
     <div class="ref-box">
         <input id="refLink" type="text" readonly value="{{ ref_link }}">
         <button type="button" class="btn-primary" onclick="copyRef()">Скопировать</button>
     </div>
-    <p class="muted">Делись этой ссылкой. Когда клиент по ней оставит заявку и оплатит сделку — тебе автоматически начислится {{ commission_percent }}% от суммы.</p>
+    <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит сделку — вам автоматически начислится {{ commission_percent }}% от суммы.</p>
 </section>
 
 <section class="stats-grid">
@@ -37,18 +38,13 @@
     {% if referrals %}
     <table class="data">
         <thead>
-            <tr>
-                <th>Клиент</th>
-                <th>Дата</th>
-                <th>Оплачено сделок</th>
-                <th>Заработано</th>
-            </tr>
+            <tr><th>Клиент</th><th>Дата</th><th>Оплачено сделок</th><th>Заработано</th></tr>
         </thead>
         <tbody>
             {% for r in referrals %}
             <tr>
                 <td>{{ r.contact_label }}</td>
-                <td>{{ r.first_seen_at[:10] }}</td>
+                <td>{{ r.first_seen_at if r.first_seen_at is string else r.first_seen_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ r.deals_count }}</td>
                 <td>{{ "{:,}".format(r.earned).replace(",", " ") }} ₽</td>
             </tr>
@@ -56,7 +52,7 @@
         </tbody>
     </table>
     {% else %}
-    <p class="muted">Пока никто не пришёл по твоей ссылке. Поделись ссылкой выше — и здесь появятся клиенты.</p>
+    <p class="muted">Пока никто не пришёл по вашей ссылке. Поделитесь ссылкой выше — и здесь появятся клиенты.</p>
     {% endif %}
 </section>
 
@@ -65,19 +61,13 @@
     {% if commissions %}
     <table class="data">
         <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Клиент</th>
-                <th>Сумма сделки</th>
-                <th>Твоя комиссия</th>
-            </tr>
+            <tr><th>Дата</th><th>Клиент</th><th>Ваша комиссия</th></tr>
         </thead>
         <tbody>
             {% for c in commissions %}
             <tr>
-                <td>{{ c.created_at[:10] }}</td>
+                <td>{{ c.created_at if c.created_at is string else c.created_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ c.contact_label }}</td>
-                <td>{{ "{:,}".format(c.deal_budget).replace(",", " ") }} ₽</td>
                 <td><strong>{{ "{:,}".format(c.commission_amount).replace(",", " ") }} ₽</strong></td>
             </tr>
             {% endfor %}
@@ -90,14 +80,11 @@
 
 <script>
 function copyRef() {
-    const inp = document.getElementById('refLink');
-    inp.select();
-    inp.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(inp.value);
+    navigator.clipboard.writeText(document.getElementById('refLink').value);
     const btn = event.target;
     const old = btn.textContent;
     btn.textContent = 'Скопировано!';
     setTimeout(() => { btn.textContent = old; }, 1500);
 }
 </script>
-{% endblock %}
+{% endblock lk_content %}
