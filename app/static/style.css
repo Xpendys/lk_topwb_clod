@@ -170,6 +170,7 @@ table.data tr:last-child td { border-bottom: none; }
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+.nowrap { white-space: nowrap; }
 
 /* ===== LK SIDEBAR ===== */
 .lk-layout { display: flex; gap: 24px; align-items: flex-start; }
@@ -213,8 +214,8 @@ table.data tr:last-child td { border-bottom: none; }
 .lk-content h1 { margin-top: 0; }
 
 /* ===== HERO ===== */
-.hero { text-align: center; padding: 80px 24px; }
-.hero h1 { font-size: 40px; margin: 0 0 16px; }
+.hero { text-align: center; padding: 80px 24px; width: min(100vw - 48px, 1500px); margin: 0 calc(50% - min(50vw, 750px)); }
+.hero h1 { font-size: clamp(34px, 3.1vw, 56px); margin: 0 0 16px; white-space: nowrap; }
 .hero p { font-size: 18px; color: var(--muted); margin-bottom: 36px; }
 .how { padding: 36px 44px; }
 .how.card { padding: 36px 44px; }
@@ -244,6 +245,8 @@ table.data tr:last-child td { border-bottom: none; }
     .lk-layout { flex-direction: column; }
     .lk-sidebar { width: 100%; position: static; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
+    .hero { width: auto; margin: 0; padding: 64px 0; }
+    .hero h1 { font-size: 34px; white-space: normal; }
     .how { padding: 28px 24px; }
     .how.card { padding: 28px 24px; }
 }
