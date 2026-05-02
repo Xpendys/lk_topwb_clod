@@ -247,6 +247,15 @@ table.data tr:last-child td { border-bottom: none; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .hero { width: auto; margin: 0; padding: 64px 0; }
     .hero h1 { font-size: 34px; white-space: normal; }
+    .hero .btn-primary,
+    .hero .btn-secondary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: min(100%, 300px);
+        margin: 0 auto 12px;
+    }
+    .hero .btn-secondary { margin-left: auto; }
     .how { padding: 28px 24px; }
     .how.card { padding: 28px 24px; }
 }
