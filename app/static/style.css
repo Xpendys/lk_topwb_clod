@@ -216,7 +216,7 @@ table.data tr:last-child td { border-bottom: none; }
 .hero { text-align: center; padding: 80px 24px; }
 .hero h1 { font-size: 40px; margin: 0 0 16px; }
 .hero p { font-size: 18px; color: var(--muted); margin-bottom: 36px; }
-.how { padding: 32px 0; }
+.how { padding: 36px 44px; }
 .how h2 { margin-bottom: 16px; }
 .how ol { font-size: 17px; line-height: 2; color: var(--muted); }
 
@@ -243,6 +243,7 @@ table.data tr:last-child td { border-bottom: none; }
     .lk-layout { flex-direction: column; }
     .lk-sidebar { width: 100%; position: static; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
+    .how { padding: 28px 24px; }
 }
 
 /* ===== FOOTER SOCIALS ===== */
