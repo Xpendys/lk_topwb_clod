@@ -3,6 +3,8 @@
 """
 from __future__ import annotations
 
+import logging
+
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -15,6 +17,7 @@ from .db import db_cursor, init_db
 app = FastAPI(title="Топай в ТОП · Реферальная программа")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
+logger = logging.getLogger(__name__)
 
 app.include_router(webhook.router)
 
@@ -71,11 +74,14 @@ def register_post(
     token = auth.create_email_confirmation_token(user_id)
     confirmation_url = f"{settings.LK_BASE_URL}/confirm-email?token={token}"
     user = auth.get_user_by_id(user_id)
+    send_error = ""
     try:
         sent = mailer.send_email_confirmation(user["email"], user["first_name"], confirmation_url)
-    except Exception:
+    except Exception as exc:
+        logger.exception("Failed to send confirmation email to %s", user["email"])
         sent = False
-    return render(request, "check_email.html", email=email.strip().lower(), sent=sent)
+        send_error = str(exc)
+    return render(request, "check_email.html", email=email.strip().lower(), sent=sent, send_error=send_error)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -120,11 +126,14 @@ def resend_confirmation(request: Request, email: str = Form(...)):
 
     token = auth.create_email_confirmation_token(user["id"])
     confirmation_url = f"{settings.LK_BASE_URL}/confirm-email?token={token}"
+    send_error = ""
     try:
         sent = mailer.send_email_confirmation(user["email"], user["first_name"], confirmation_url)
-    except Exception:
+    except Exception as exc:
+        logger.exception("Failed to resend confirmation email to %s", user["email"])
         sent = False
-    return render(request, "check_email.html", email=user["email"], sent=sent, resent=True)
+        send_error = str(exc)
+    return render(request, "check_email.html", email=user["email"], sent=sent, resent=True, send_error=send_error)
 
 
 # ---------- личный кабинет ----------

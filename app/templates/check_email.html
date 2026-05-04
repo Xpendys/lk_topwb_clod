@@ -7,7 +7,8 @@
     {% if sent %}
         <div class="alert alert-success">Мы отправили ссылку подтверждения на {{ email }}.</div>
     {% else %}
-        <div class="alert alert-info">Аккаунт создан. Отправка письма пока не настроена, обратитесь к администратору.</div>
+        <div class="alert alert-error">Аккаунт создан, но письмо не удалось отправить. Попробуйте ещё раз или обратитесь к администратору.</div>
+        {% if send_error %}<p class="muted" style="font-size:13px;">Ошибка отправки: {{ send_error }}</p>{% endif %}
     {% endif %}
     <p class="muted">После подтверждения почты вы сможете войти в личный кабинет.</p>
     <form method="post" action="/resend-confirmation">
