@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import secrets
 import string
+from hmac import compare_digest
 from typing import Optional
 
 import bcrypt
@@ -18,6 +19,7 @@ from .config import settings
 from .db import db_cursor
 
 SESSION_COOKIE = "session"
+ADMIN_SESSION_COOKIE = "admin_session"
 _serializer = URLSafeSerializer(settings.SECRET_KEY, salt="session-v1")
 
 
@@ -141,3 +143,27 @@ def current_user(request: Request) -> Optional[dict]:
         )
         row = cur.fetchone()
     return dict(row) if row else None
+
+
+# ---------- Админ-сессия ----------
+
+def admin_credentials_valid(login: str, password: str) -> bool:
+    return compare_digest(login, settings.ADMIN_LOGIN) and compare_digest(
+        password,
+        settings.ADMIN_PASSWORD,
+    )
+
+
+def make_admin_session_cookie() -> str:
+    return _serializer.dumps({"admin": True})
+
+
+def current_admin(request: Request) -> bool:
+    cookie = request.cookies.get(ADMIN_SESSION_COOKIE)
+    if not cookie:
+        return False
+    try:
+        data = _serializer.loads(cookie)
+    except BadSignature:
+        return False
+    return bool(data.get("admin"))

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход в админ-панель — Топай в ТОП</title>
+    <link rel="stylesheet" href="/static/style.css?v=20260504-1">
+</head>
+<body>
+    <header class="topbar">
+        <a href="/" class="brand"><img src="/static/logo.png" alt="Топай в ТОП" class="brand-logo"></a>
+        <span class="muted" style="font-size:13px;">Админ-панель</span>
+    </header>
+
+    <main class="container">
+        <div class="card narrow">
+            <h1>Вход в админ-панель</h1>
+            {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+            <form method="post" action="/admin/login">
+                <label>
+                    Логин
+                    <input type="text" name="login" required value="{{ form.login or '' }}">
+                </label>
+                <label>
+                    Пароль
+                    <input type="password" name="password" required>
+                </label>
+                <button type="submit" class="btn-primary big full">Войти</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

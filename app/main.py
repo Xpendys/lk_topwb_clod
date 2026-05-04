@@ -36,6 +36,12 @@ def require_login(request: Request):
     return None, user
 
 
+def require_admin(request: Request):
+    if not auth.current_admin(request):
+        return RedirectResponse("/admin/login", status_code=303)
+    return None
+
+
 # ---------- public ----------
 
 @app.get("/", response_class=HTMLResponse)
@@ -140,24 +146,63 @@ def requisites_post(
 
 # ---------- админ ----------
 
+@app.get("/admin/login", response_class=HTMLResponse)
+def admin_login_get(request: Request):
+    if auth.current_admin(request):
+        return RedirectResponse("/admin", status_code=303)
+    return templates.TemplateResponse(request, "admin_login.html", {"user": None, "form": {}})
+
+
+@app.post("/admin/login", response_class=HTMLResponse)
+def admin_login_post(request: Request, login: str = Form(...), password: str = Form(...)):
+    if not auth.admin_credentials_valid(login, password):
+        return templates.TemplateResponse(
+            request,
+            "admin_login.html",
+            {"user": None, "form": {"login": login}, "error": "Неверный логин или пароль"},
+        )
+    response = RedirectResponse("/admin", status_code=303)
+    response.set_cookie(
+        auth.ADMIN_SESSION_COOKIE,
+        auth.make_admin_session_cookie(),
+        max_age=60*60*24*30,
+        httponly=True,
+        samesite="lax",
+    )
+    return response
+
+
+@app.post("/admin/logout")
+def admin_logout():
+    response = RedirectResponse("/admin/login", status_code=303)
+    response.delete_cookie(auth.ADMIN_SESSION_COOKIE)
+    return response
+
+
 @app.get("/admin", response_class=HTMLResponse)
-def admin_panel(request: Request, key: str = ""):
-    if key != settings.ALBATO_WEBHOOK_SECRET:
-        return HTMLResponse("<h1>403 Forbidden</h1>", status_code=403)
+def admin_panel(request: Request):
+    redirect = require_admin(request)
+    if redirect:
+        return redirect
     users = stats.get_all_users_admin()
-    return templates.TemplateResponse(request, "admin.html", {"users": users, "user": None, "admin_key": key, "message": request.query_params.get("msg", "")})
+    return templates.TemplateResponse(
+        request,
+        "admin.html",
+        {"users": users, "user": None, "message": request.query_params.get("msg", "")},
+    )
 
 
 
 @app.post("/admin/payout")
-def admin_payout(request: Request, key: str = "", user_id: int = Form(...), amount: int = Form(...)):
-    if key != settings.ALBATO_WEBHOOK_SECRET:
-        return HTMLResponse("<h1>403 Forbidden</h1>", status_code=403)
+def admin_payout(request: Request, user_id: int = Form(...), amount: int = Form(...)):
+    redirect = require_admin(request)
+    if redirect:
+        return redirect
     with db_cursor() as cur:
         cur.execute("INSERT INTO payouts (user_id, amount, note) VALUES (?, ?, ?)",
                     (user_id, amount, "Выплата через админ-панель"))
     from fastapi.responses import RedirectResponse as RR
-    return RR(f"/admin?key={key}&msg=Выплата+записана", status_code=303)
+    return RR("/admin?msg=Выплата+записана", status_code=303)
 
 
 # ---------- health ----------

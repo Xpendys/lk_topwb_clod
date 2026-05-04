@@ -19,7 +19,9 @@
 <body>
     <header class="topbar">
         <a href="#" class="brand"><img src="/static/logo.png" alt="Топай в ТОП" class="brand-logo"></a>
-        <span class="muted" style="font-size:13px;">Админ-панель</span>
+        <form method="post" action="/admin/logout" style="display:inline">
+            <button type="submit" class="link-btn">Выйти</button>
+        </form>
     </header>
     <div class="admin-wrap">
         <h1>Партнёры и выплаты</h1>
@@ -68,7 +70,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <form class="payout-form" method="post" action="/admin/payout?key={{ admin_key }}">
+                            <form class="payout-form" method="post" action="/admin/payout">
                                 <input type="hidden" name="user_id" value="{{ u.id }}">
                                 <input type="number" name="amount" placeholder="Сумма" min="1"
                                        value="{{ u.balance if u.balance > 0 else '' }}">

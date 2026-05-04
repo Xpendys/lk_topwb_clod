@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     # Cекреты
     SECRET_KEY: str = "dev-secret-change-me"
     ALBATO_WEBHOOK_SECRET: str = "dev-webhook-secret-change-me"
+    ADMIN_LOGIN: str = "admin_topwb"
+    ADMIN_PASSWORD: str = "admin_topwb"
 
     # URL'ы
     PUBLIC_SITE_URL: str = "https://www.toptopwb.ru"

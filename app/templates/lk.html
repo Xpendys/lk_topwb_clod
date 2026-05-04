@@ -11,7 +11,7 @@
         <input id="refLink" type="text" readonly value="{{ ref_link }}">
         <button type="button" class="btn-primary" onclick="copyRef()">Скопировать</button>
     </div>
-    <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит сделку — вам автоматически начислится {{ commission_percent }}% от суммы.</p>
+    <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит сделку — мы учтём приглашение в вашей статистике.</p>
 </section>
 
 <section class="stats-grid">
@@ -23,14 +23,6 @@
         <div class="stat-value">{{ stats.paid_deals_count }}</div>
         <div class="stat-label">Оплаченных сделок</div>
     </div>
-    <div class="stat-card highlight">
-        <div class="stat-value">{{ "{:,}".format(stats.balance).replace(",", " ") }} ₽</div>
-        <div class="stat-label">К выплате</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ "{:,}".format(stats.total_paid_out).replace(",", " ") }} ₽</div>
-        <div class="stat-label">Уже выплачено</div>
-    </div>
 </section>
 
 <section class="card">
@@ -38,7 +30,7 @@
     {% if referrals %}
     <table class="data">
         <thead>
-            <tr><th>Клиент</th><th>Дата</th><th>Оплачено сделок</th><th>Заработано</th></tr>
+            <tr><th>Клиент</th><th>Дата</th><th>Оплачено сделок</th></tr>
         </thead>
         <tbody>
             {% for r in referrals %}
@@ -46,7 +38,6 @@
                 <td>{{ r.contact_label }}</td>
                 <td>{{ r.first_seen_at if r.first_seen_at is string else r.first_seen_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ r.deals_count }}</td>
-                <td>{{ "{:,}".format(r.earned).replace(",", " ") }} ₽</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -57,24 +48,23 @@
 </section>
 
 <section class="card">
-    <h2>История начислений</h2>
+    <h2>Оплаченные сделки</h2>
     {% if commissions %}
     <table class="data">
         <thead>
-            <tr><th>Дата</th><th>Клиент</th><th>Ваша комиссия</th></tr>
+            <tr><th>Дата</th><th>Клиент</th></tr>
         </thead>
         <tbody>
             {% for c in commissions %}
             <tr>
                 <td>{{ c.created_at if c.created_at is string else c.created_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ c.contact_label }}</td>
-                <td><strong>{{ "{:,}".format(c.commission_amount).replace(",", " ") }} ₽</strong></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <p class="muted">Здесь будут отображаться начисления, как только приглашённые клиенты оплатят сделки.</p>
+    <p class="muted">Здесь будут отображаться оплаченные сделки приглашённых клиентов.</p>
     {% endif %}
 </section>
 
