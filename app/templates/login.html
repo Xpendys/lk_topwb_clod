@@ -4,6 +4,7 @@
 {% block content %}
 <div class="card narrow">
     <h1>Вход в кабинет</h1>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
     <form method="post" action="/login">
         <label>
             Email
@@ -14,6 +15,10 @@
             <input type="password" name="password" required>
         </label>
         <button type="submit" class="btn-primary big full">Войти</button>
+    </form>
+    <form method="post" action="/resend-confirmation">
+        <input type="hidden" name="email" value="{{ form.email or '' }}">
+        <button type="submit" class="link-btn" style="margin: 12px 0 0;">Отправить письмо подтверждения ещё раз</button>
     </form>
     <p class="muted center">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
 </div>

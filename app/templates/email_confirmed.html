@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Email подтверждён — Топай в ТОП{% endblock %}
+
+{% block content %}
+<div class="card narrow">
+    {% if confirmed %}
+        <h1>Email подтверждён</h1>
+        <div class="alert alert-success">Теперь можно войти в личный кабинет.</div>
+        <a href="/login" class="btn-primary big full">Войти</a>
+    {% else %}
+        <h1>Ссылка не сработала</h1>
+        <div class="alert alert-error">Ссылка подтверждения устарела или уже была использована.</div>
+        <p class="muted">Попробуйте запросить письмо подтверждения ещё раз на странице входа.</p>
+        <a href="/login" class="btn-secondary big full" style="margin: 0;">Ко входу</a>
+    {% endif %}
+</div>
+{% endblock %}

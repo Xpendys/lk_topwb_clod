@@ -57,6 +57,8 @@ def init_db() -> None:
                 first_name      TEXT NOT NULL,
                 last_name       TEXT NOT NULL,
                 platform        TEXT NOT NULL CHECK (platform IN ('wb','ozon','both')),
+                email_confirmed INTEGER NOT NULL DEFAULT 1,
+                email_confirmed_at TIMESTAMP,
                 created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
 
@@ -95,5 +97,27 @@ def init_db() -> None:
             );
 
             CREATE INDEX IF NOT EXISTS idx_payouts_user ON payouts(user_id);
+
+            CREATE TABLE IF NOT EXISTS email_confirmations (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                token_hash  TEXT NOT NULL UNIQUE,
+                expires_at  TIMESTAMP NOT NULL,
+                used_at     TIMESTAMP,
+                created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_email_confirmations_user ON email_confirmations(user_id);
             """
         )
+        for _col, _def in [
+            ("requisites_phone", "TEXT"),
+            ("requisites_name", "TEXT"),
+            ("requisites_bank", "TEXT"),
+            ("email_confirmed", "INTEGER NOT NULL DEFAULT 1"),
+            ("email_confirmed_at", "TIMESTAMP"),
+        ]:
+            try:
+                cur.execute(f"ALTER TABLE users ADD COLUMN {_col} {_def}")
+            except Exception:
+                pass

@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import secrets
 import string
+from datetime import datetime, timedelta
+from hashlib import sha256
 from hmac import compare_digest
 from typing import Optional
 
@@ -61,6 +63,10 @@ class AuthError(Exception):
     pass
 
 
+class EmailNotConfirmed(AuthError):
+    pass
+
+
 def register_user(
     email: str,
     password: str,
@@ -88,8 +94,8 @@ def register_user(
 
         cur.execute(
             """
-            INSERT INTO users (ref_code, email, password_hash, first_name, last_name, platform)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO users (ref_code, email, password_hash, first_name, last_name, platform, email_confirmed)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
             """,
             (ref_code, email, pw_hash, first_name.strip(), last_name.strip(), platform),
         )
@@ -100,7 +106,7 @@ def authenticate(email: str, password: str) -> Optional[int]:
     email = email.strip().lower()
     with db_cursor() as cur:
         cur.execute(
-            "SELECT id, password_hash FROM users WHERE email = ?",
+            "SELECT id, password_hash, email_confirmed FROM users WHERE email = ?",
             (email,),
         )
         row = cur.fetchone()
@@ -108,7 +114,82 @@ def authenticate(email: str, password: str) -> Optional[int]:
         return None
     if not verify_password(password, row["password_hash"]):
         return None
+    if not row["email_confirmed"]:
+        raise EmailNotConfirmed("Подтвердите email. Мы отправили ссылку подтверждения на вашу почту.")
     return int(row["id"])
+
+
+# ---------- Подтверждение email ----------
+
+def _hash_token(token: str) -> str:
+    return sha256(token.encode("utf-8")).hexdigest()
+
+
+def create_email_confirmation_token(user_id: int, hours: int = 24) -> str:
+    token = secrets.token_urlsafe(32)
+    token_hash = _hash_token(token)
+    expires_at = datetime.utcnow() + timedelta(hours=hours)
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO email_confirmations (user_id, token_hash, expires_at)
+            VALUES (?, ?, ?)
+            """,
+            (user_id, token_hash, expires_at),
+        )
+    return token
+
+
+def get_user_by_email(email: str) -> Optional[dict]:
+    with db_cursor() as cur:
+        cur.execute(
+            "SELECT id, email, first_name, email_confirmed FROM users WHERE email = ?",
+            (email.strip().lower(),),
+        )
+        row = cur.fetchone()
+    return dict(row) if row else None
+
+
+def get_user_by_id(user_id: int) -> Optional[dict]:
+    with db_cursor() as cur:
+        cur.execute(
+            "SELECT id, email, first_name, email_confirmed FROM users WHERE id = ?",
+            (user_id,),
+        )
+        row = cur.fetchone()
+    return dict(row) if row else None
+
+
+def confirm_email_token(token: str) -> bool:
+    token_hash = _hash_token(token)
+    now = datetime.utcnow()
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT id, user_id, expires_at, used_at
+            FROM email_confirmations
+            WHERE token_hash = ?
+            """,
+            (token_hash,),
+        )
+        row = cur.fetchone()
+        if row is None or row["used_at"] is not None:
+            return False
+        expires_at = row["expires_at"]
+        if isinstance(expires_at, str):
+            expires_at = datetime.fromisoformat(expires_at)
+        if expires_at < now:
+            return False
+
+        cur.execute(
+            "UPDATE users SET email_confirmed = 1, email_confirmed_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (row["user_id"],),
+        )
+        cur.execute(
+            "UPDATE email_confirmations SET used_at = CURRENT_TIMESTAMP WHERE id = ?",
+            (row["id"],),
+        )
+    return True
 
 
 # ---------- Сессии ----------

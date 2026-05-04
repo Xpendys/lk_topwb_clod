@@ -4,6 +4,7 @@
 {% block content %}
 <div class="card narrow">
     <h1>Регистрация партнёра</h1>
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
     <form method="post" action="/register">
         <label>
             Имя

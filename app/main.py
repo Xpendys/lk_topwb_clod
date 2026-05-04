@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import auth, stats, webhook
+from . import auth, mailer, stats, webhook
 from .config import settings
 from .db import db_cursor, init_db
 
@@ -68,10 +68,14 @@ def register_post(
         user_id = auth.register_user(email, password, first_name, last_name, platform)
     except auth.AuthError as e:
         return render(request, "register.html", form=form, error=str(e))
-    response = RedirectResponse("/lk", status_code=303)
-    response.set_cookie(auth.SESSION_COOKIE, auth.make_session_cookie(user_id),
-                        max_age=60*60*24*30, httponly=True, samesite="lax")
-    return response
+    token = auth.create_email_confirmation_token(user_id)
+    confirmation_url = f"{settings.LK_BASE_URL}/confirm-email?token={token}"
+    user = auth.get_user_by_id(user_id)
+    try:
+        sent = mailer.send_email_confirmation(user["email"], user["first_name"], confirmation_url)
+    except Exception:
+        sent = False
+    return render(request, "check_email.html", email=email.strip().lower(), sent=sent)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -81,7 +85,10 @@ def login_get(request: Request):
 
 @app.post("/login", response_class=HTMLResponse)
 def login_post(request: Request, email: str = Form(...), password: str = Form(...)):
-    user_id = auth.authenticate(email, password)
+    try:
+        user_id = auth.authenticate(email, password)
+    except auth.EmailNotConfirmed as e:
+        return render(request, "login.html", form={"email": email}, error=str(e))
     if user_id is None:
         return render(request, "login.html", form={"email": email}, error="Неверный email или пароль")
     response = RedirectResponse("/lk", status_code=303)
@@ -95,6 +102,29 @@ def logout():
     response = RedirectResponse("/", status_code=303)
     response.delete_cookie(auth.SESSION_COOKIE)
     return response
+
+
+@app.get("/confirm-email", response_class=HTMLResponse)
+def confirm_email(request: Request, token: str = ""):
+    confirmed = bool(token) and auth.confirm_email_token(token)
+    return render(request, "email_confirmed.html", confirmed=confirmed)
+
+
+@app.post("/resend-confirmation", response_class=HTMLResponse)
+def resend_confirmation(request: Request, email: str = Form(...)):
+    user = auth.get_user_by_email(email)
+    if user is None:
+        return render(request, "check_email.html", email=email, sent=True)
+    if user["email_confirmed"]:
+        return RedirectResponse("/login", status_code=303)
+
+    token = auth.create_email_confirmation_token(user["id"])
+    confirmation_url = f"{settings.LK_BASE_URL}/confirm-email?token={token}"
+    try:
+        sent = mailer.send_email_confirmation(user["email"], user["first_name"], confirmation_url)
+    except Exception:
+        sent = False
+    return render(request, "check_email.html", email=user["email"], sent=sent, resent=True)
 
 
 # ---------- личный кабинет ----------
