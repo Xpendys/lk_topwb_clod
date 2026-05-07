@@ -6,7 +6,7 @@
 
 users           — зарегистрированные партнёры (они же могут быть рефералами)
 referrals       — клиенты, пришедшие по реф.ссылке (1 запись на 1 контакт АМО)
-commissions     — начисления партнёрам по оплаченным сделкам
+commissions     — начисления партнёрам по оплаченным выкупам
 payouts         — выплаты партнёрам (заполняются вручную админом)
 """
 from __future__ import annotations
@@ -81,8 +81,8 @@ def init_db() -> None:
                 user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 referral_id     INTEGER REFERENCES referrals(id) ON DELETE SET NULL,
                 amo_lead_id     INTEGER NOT NULL UNIQUE,   -- id сделки в АМО, чтобы не начислить дважды
-                deal_budget     INTEGER NOT NULL,          -- бюджет сделки в копейках * 100? храним в рублях целым
-                commission_amount   INTEGER NOT NULL,      -- начислено партнёру, рубли
+                deal_budget     INTEGER NOT NULL,          -- бюджет выкупов, рубли
+                commission_amount   INTEGER NOT NULL,      -- начислено партнёру от выкупов, рубли
                 created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
 

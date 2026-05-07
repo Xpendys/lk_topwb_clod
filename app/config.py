@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # URL'ы
     PUBLIC_SITE_URL: str = "https://www.toptopwb.ru"
-    LK_BASE_URL: str = "https://referal.toptopwb.ru"
+    LK_BASE_URL: str = "https://referal-top-wb.ru"
 
     # Бизнес-логика
     COMMISSION_PERCENT: int = 10

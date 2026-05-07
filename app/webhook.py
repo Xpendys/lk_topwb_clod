@@ -3,23 +3,24 @@
 
 Логика:
   1. Albato триггерится по событию "сделка перешла на этап Оплачено" в АМО.
-  2. Albato читает у этой сделки бюджет и связанный контакт (включая поле REFERER контакта).
+  2. Albato читает у этой сделки поле "Бюджет выкупы" и связанный контакт
+     (включая поле REFERER контакта).
   3. Albato шлёт нам POST с JSON примерно такого вида:
      {
        "amo_lead_id": 41046651,
-       "deal_budget": 40136,
+       "buyout_budget": 40136,
        "amo_contact_id": 12345678,
        "referer_code": "AB12CD",
        "stage_name": "Оплачено"
      }
      (точные имена полей мы зададим в самом сценарии Albato — см. README.md)
-  4. Запрос подписан секретным ключом в HTTP-заголовке X-Webhook-Secret.
+  4. Запрос подписан секретным ключом в query-параметре ?secret=...
   5. Мы:
      - проверяем секрет
      - находим партнёра по referer_code
      - находим/создаём referral по amo_contact_id
      - проверяем что для этой сделки ещё не было начисления (UNIQUE на amo_lead_id)
-     - считаем 10% и записываем в commissions
+     - считаем 10% от бюджета выкупов и записываем в commissions
 """
 from __future__ import annotations
 
@@ -85,7 +86,15 @@ async def amo_webhook(
     # 3) Достаём данные. Имена ключей должны совпадать с тем что укажешь в Albato.
     try:
         amo_lead_id = int(payload.get("amo_lead_id") or payload.get("lead_id") or 0)
-        deal_budget = int(float(payload.get("deal_budget") or payload.get("budget") or 0))
+        buyout_budget_raw = (
+            payload.get("buyout_budget")
+            or payload.get("buyouts_budget")
+            or payload.get("purchase_budget")
+            or payload.get("deal_budget")
+            or payload.get("budget")
+            or 0
+        )
+        buyout_budget = int(float(buyout_budget_raw))
         amo_contact_id_raw = payload.get("amo_contact_id") or payload.get("contact_id")
         amo_contact_id = int(amo_contact_id_raw) if amo_contact_id_raw else None
         referer_code = (payload.get("referer_code") or payload.get("referer") or "").strip().upper()
@@ -97,8 +106,8 @@ async def amo_webhook(
     if not referer_code:
         # Это нормальная ситуация — сделка пришла НЕ от реферала. Просто игнорируем.
         return {"status": "ignored", "reason": "no referer"}
-    if deal_budget <= 0:
-        return {"status": "ignored", "reason": "zero budget"}
+    if buyout_budget <= 0:
+        return {"status": "ignored", "reason": "zero buyout budget"}
 
     # 4) Идём в БД
     with db_cursor() as cur:
@@ -117,19 +126,20 @@ async def amo_webhook(
         # Привязываем/создаём реферала
         referral_id = _ensure_referral(cur, user_id, amo_contact_id)
 
-        # Считаем комиссию (целые рубли, отбрасываем копейки)
-        commission = deal_budget * settings.COMMISSION_PERCENT // 100
+        # Считаем комиссию от бюджета выкупов (целые рубли, отбрасываем копейки).
+        commission = buyout_budget * settings.COMMISSION_PERCENT // 100
 
         cur.execute(
             """
             INSERT INTO commissions (user_id, referral_id, amo_lead_id, deal_budget, commission_amount)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (user_id, referral_id, amo_lead_id, deal_budget, commission),
+            (user_id, referral_id, amo_lead_id, buyout_budget, commission),
         )
 
     return {
         "status": "ok",
         "user_id": user_id,
+        "buyout_budget": buyout_budget,
         "commission": commission,
     }

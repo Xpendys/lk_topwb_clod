@@ -11,7 +11,7 @@
         <input id="refLink" type="text" readonly value="{{ ref_link }}">
         <button type="button" class="btn-primary" onclick="copyRef()">Скопировать</button>
     </div>
-    <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит сделку — мы учтём приглашение в вашей статистике.</p>
+    <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит выкупы — мы учтём приглашение в вашей статистике.</p>
 </section>
 
 <section class="stats-grid">
@@ -21,7 +21,7 @@
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.paid_deals_count }}</div>
-        <div class="stat-label">Оплаченных сделок</div>
+        <div class="stat-label">Оплаченных выкупов</div>
     </div>
 </section>
 
@@ -30,7 +30,7 @@
     {% if referrals %}
     <table class="data">
         <thead>
-            <tr><th>Клиент</th><th>Дата</th><th>Оплачено сделок</th></tr>
+            <tr><th>Клиент</th><th>Дата</th><th>Оплачено выкупов</th></tr>
         </thead>
         <tbody>
             {% for r in referrals %}
@@ -48,7 +48,7 @@
 </section>
 
 <section class="card">
-    <h2>Оплаченные сделки</h2>
+    <h2>Оплаченные выкупы</h2>
     {% if commissions %}
     <table class="data">
         <thead>
@@ -64,7 +64,7 @@
         </tbody>
     </table>
     {% else %}
-    <p class="muted">Здесь будут отображаться оплаченные сделки приглашённых клиентов.</p>
+    <p class="muted">Здесь будут отображаться оплаченные выкупы приглашённых клиентов.</p>
     {% endif %}
 </section>
 

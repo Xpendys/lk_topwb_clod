@@ -1,6 +1,6 @@
 # Реферальная программа ТопВТоп · MVP
 
-Личный кабинет партнёра + интеграция с amoCRM через Albato. Партнёр получает 10% с каждой оплаченной сделки приглашённого клиента (пожизненно).
+Личный кабинет партнёра + интеграция с amoCRM через Albato. Партнёр получает 10% с оплаченных выкупов приглашённого клиента (пожизненно).
 
 ## Что внутри
 
@@ -243,21 +243,19 @@ certbot --nginx -d referal.toptopwb.ru
    - **Условие:** этап = `Оплачено`. Если в Albato нельзя задать условие на этапе — добавь шаг «Фильтр» после источника: `current_status_name == "Оплачено"`.
 3. **Шаг "Поиск":** «Найти контакт по ID» — указать Main Contact ID из триггера. Это даст нам пользовательские поля контакта, включая `REFERER`.
 4. **Назначение:** «Webhook» / «HTTP запрос».
-   - **URL:** `https://referal.toptopwb.ru/api/amo-webhook`
+   - **URL:** `https://referal-top-wb.ru/api/amo-webhook?secret=ТВОЙ_ALBATO_WEBHOOK_SECRET_ИЗ_.env`
    - **Метод:** `POST`
-   - **Заголовок (Header):**
-     - `X-Webhook-Secret: ТВОЙ_ALBATO_WEBHOOK_SECRET_ИЗ_.env`
    - **Тип тела:** JSON
    - **Тело:**
      ```json
      {
        "amo_lead_id": {{ trigger.id }},
-       "deal_budget": {{ trigger.price }},
+       "buyout_budget": {{ trigger.custom_fields.Бюджет_выкупы }},
        "amo_contact_id": {{ contact.id }},
        "referer_code": "{{ contact.custom_fields.REFERER }}"
      }
      ```
-     (точные имена переменных зависят от Albato — выбирай в их визуальном маппере поля «ID сделки», «Бюджет», «ID контакта», «REFERER (контакт)»)
+     (точные имена переменных зависят от Albato — выбирай в их визуальном маппере поля «ID сделки», «Бюджет выкупы», «ID контакта», «REFERER (контакт)»)
 5. **Сохрани и включи связку.**
 
 **Тест:**
@@ -358,7 +356,7 @@ scp root@ТВОЙ_IP:/home/referal/app/referal.db ~/backup-referal-$(date +%Y%m%
 ### Webhook от Albato не приходит
 - В Albato → История запусков — что показывает?
 - На сервере: `journalctl -u referal -f` (живой лог) → переведи тестовую сделку в «Оплачено», следи за логом.
-- Проверь что в Albato в заголовке точно тот же `X-Webhook-Secret`, что в `.env` на сервере.
+- Проверь что в URL webhook после `?secret=` стоит тот же `ALBATO_WEBHOOK_SECRET`, что в `.env` на сервере.
 
 ### Реф-код не подставляется в форму Tilda
 - Зайди на сайт через `?ref=ТЕСТКОД` → DevTools (F12) → Console — нет ли ошибок JS?
