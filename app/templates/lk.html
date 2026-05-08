@@ -23,6 +23,10 @@
         <div class="stat-value">{{ stats.paid_deals_count }}</div>
         <div class="stat-label">Оплаченных выкупов</div>
     </div>
+    <div class="stat-card highlight">
+        <div class="stat-value">{{ "{:,}".format(stats.total_earned).replace(",", " ") }} ₽</div>
+        <div class="stat-label">Заработано с выкупов</div>
+    </div>
 </section>
 
 <section class="card">
@@ -30,7 +34,7 @@
     {% if referrals %}
     <table class="data">
         <thead>
-            <tr><th>Клиент</th><th>Дата</th><th>Оплачено выкупов</th></tr>
+            <tr><th>Клиент</th><th>Дата</th><th>Оплачено выкупов</th><th>Заработано</th></tr>
         </thead>
         <tbody>
             {% for r in referrals %}
@@ -38,6 +42,7 @@
                 <td>{{ r.contact_label }}</td>
                 <td>{{ r.first_seen_at if r.first_seen_at is string else r.first_seen_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ r.deals_count }}</td>
+                <td>{{ "{:,}".format(r.earned).replace(",", " ") }} ₽</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -52,13 +57,14 @@
     {% if commissions %}
     <table class="data">
         <thead>
-            <tr><th>Дата</th><th>Клиент</th></tr>
+            <tr><th>Дата</th><th>Клиент</th><th>Начислено</th></tr>
         </thead>
         <tbody>
             {% for c in commissions %}
             <tr>
                 <td>{{ c.created_at if c.created_at is string else c.created_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ c.contact_label }}</td>
+                <td>{{ "{:,}".format(c.commission_amount).replace(",", " ") }} ₽</td>
             </tr>
             {% endfor %}
         </tbody>
