@@ -74,13 +74,6 @@
 
 {% block header_nav %}
 <div class="landing-header">
-    <div class="landing-auth">
-        {% if user %}
-            <a href="/lk">Кабинет</a>
-        {% else %}
-            <a href="/login">Войти</a>
-        {% endif %}
-    </div>
     <button class="landing-menu-toggle" type="button" aria-expanded="false" aria-controls="landingMenu">
         <span>Меню</span>
         <span class="landing-menu-icon" aria-hidden="true"></span>
@@ -92,9 +85,9 @@
         <a href="#partners">Для кого</a>
     </nav>
     {% if user %}
-        <a href="/lk" class="btn-primary landing-desktop-cta">Кабинет</a>
+        <a href="/lk" class="btn-primary landing-cta">Кабинет</a>
     {% else %}
-        <a href="/register" class="btn-primary landing-desktop-cta">Регистрация</a>
+        <a href="/login" class="btn-primary landing-cta">Войти</a>
     {% endif %}
 </div>
 {% endblock %}

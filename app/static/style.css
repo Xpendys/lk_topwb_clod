@@ -31,27 +31,21 @@ html { scroll-behavior: smooth; }
     padding: 14px 32px;
     background: var(--card);
     border-bottom: 1px solid var(--border);
+    gap: 18px;
 }
 .brand { display: flex; align-items: center; text-decoration: none; }
 .brand-logo { height: 40px; }
 .topbar nav a, .topbar nav .user-name { margin-left: 16px; text-decoration: none; color: var(--muted); }
 .topbar nav .user-name { color: var(--muted); }
 .landing-header {
-    position: absolute;
-    inset: 0 32px;
+    flex: 1;
     display: grid;
-    grid-template-columns: 180px minmax(0, 1fr) 180px;
+    grid-template-columns: minmax(150px, 1fr) auto minmax(150px, 1fr);
     align-items: center;
-    pointer-events: none;
-}
-.landing-header a,
-.landing-header button {
-    pointer-events: auto;
-}
-.landing-auth {
-    display: none;
+    gap: 18px;
 }
 .landing-nav {
+    grid-column: 2;
     display: flex;
     align-items: center;
     gap: 18px;
@@ -61,11 +55,13 @@ html { scroll-behavior: smooth; }
     margin-left: 0 !important;
     white-space: nowrap;
 }
-.landing-desktop-cta {
+.landing-cta {
+    grid-column: 3;
     justify-self: end;
     margin-left: 0 !important;
 }
 .landing-menu-toggle {
+    grid-column: 2;
     display: none;
 }
 .landing-menu-icon {
@@ -544,32 +540,15 @@ table.data tr:last-child td { border-bottom: none; }
     .how.card { padding: 28px 24px; }
     .topbar {
         position: relative;
-        justify-content: center;
+        justify-content: space-between;
         min-height: 70px;
         padding: 14px 16px;
     }
-    .topbar .brand {
-        display: none;
-    }
     .landing-header {
-        position: static;
-        width: 100%;
+        flex: 1;
         display: grid;
         grid-template-columns: 1fr auto 1fr;
         gap: 8px;
-        pointer-events: auto;
-    }
-    .landing-auth {
-        display: flex;
-        align-items: center;
-        justify-self: start;
-    }
-    .landing-auth a {
-        margin-left: 0 !important;
-        color: var(--text);
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 15px;
     }
     .landing-menu-toggle {
         display: inline-flex;
@@ -627,8 +606,10 @@ table.data tr:last-child td { border-bottom: none; }
     .landing-nav a:hover {
         background: rgba(255,255,255,0.06);
     }
-    .landing-desktop-cta {
-        display: none;
+    .landing-cta {
+        justify-self: end;
+        padding: 9px 16px;
+        font-size: 14px;
     }
     .main-test {
         width: min(100%, calc(100vw - 32px));
