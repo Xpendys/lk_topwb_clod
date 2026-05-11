@@ -36,16 +36,62 @@ html { scroll-behavior: smooth; }
 .brand-logo { height: 40px; }
 .topbar nav a, .topbar nav .user-name { margin-left: 16px; text-decoration: none; color: var(--muted); }
 .topbar nav .user-name { color: var(--muted); }
+.landing-header {
+    position: absolute;
+    inset: 0 32px;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr) 180px;
+    align-items: center;
+    pointer-events: none;
+}
+.landing-header a,
+.landing-header button {
+    pointer-events: auto;
+}
+.landing-auth {
+    display: none;
+}
 .landing-nav {
     display: flex;
     align-items: center;
     gap: 18px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    justify-content: center;
 }
 .landing-nav a {
     margin-left: 0 !important;
     white-space: nowrap;
+}
+.landing-desktop-cta {
+    justify-self: end;
+    margin-left: 0 !important;
+}
+.landing-menu-toggle {
+    display: none;
+}
+.landing-menu-icon {
+    position: relative;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+.landing-menu-icon::before,
+.landing-menu-icon::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    width: 10px;
+    height: 2px;
+    border-radius: 99px;
+    background: currentColor;
+    transition: transform 0.25s ease;
+}
+.landing-menu-icon::before {
+    left: 0;
+    transform: rotate(45deg);
+}
+.landing-menu-icon::after {
+    right: 0;
+    transform: rotate(-45deg);
 }
 
 /* ===== CONTAINER ===== */
@@ -497,15 +543,92 @@ table.data tr:last-child td { border-bottom: none; }
     .how { padding: 28px 24px; }
     .how.card { padding: 28px 24px; }
     .topbar {
-        align-items: flex-start;
-        gap: 14px;
+        position: relative;
+        justify-content: center;
+        min-height: 70px;
+        padding: 14px 16px;
+    }
+    .topbar .brand {
+        display: none;
+    }
+    .landing-header {
+        position: static;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 8px;
+        pointer-events: auto;
+    }
+    .landing-auth {
+        display: flex;
+        align-items: center;
+        justify-self: start;
+    }
+    .landing-auth a {
+        margin-left: 0 !important;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+    }
+    .landing-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        justify-self: center;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.04);
+        color: var(--text);
+        border-radius: 999px;
+        padding: 10px 18px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+    }
+    .landing-menu-toggle[aria-expanded="true"] .landing-menu-icon::before {
+        transform: translateX(3px) rotate(45deg);
+    }
+    .landing-menu-toggle[aria-expanded="true"] .landing-menu-icon::after {
+        transform: translateX(-3px) rotate(-45deg);
     }
     .landing-nav {
-        gap: 10px 14px;
-        font-size: 14px;
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: calc(100% + 10px);
+        z-index: 10;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        background: rgba(50,50,50,0.98);
+        box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+        opacity: 0;
+        transform: translateY(-8px);
+        pointer-events: none;
+        visibility: hidden;
+        transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
     }
-    .landing-nav .btn-primary {
-        padding: 8px 14px;
+    .landing-nav.open {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+        visibility: visible;
+    }
+    .landing-nav a {
+        padding: 12px 14px;
+        border-radius: 14px;
+        color: var(--text);
+        text-align: center;
+    }
+    .landing-nav a:hover {
+        background: rgba(255,255,255,0.06);
+    }
+    .landing-desktop-cta {
+        display: none;
     }
     .main-test {
         width: min(100%, calc(100vw - 32px));

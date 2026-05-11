@@ -73,19 +73,30 @@
 {% endblock %}
 
 {% block header_nav %}
-<nav class="landing-nav">
-    <a href="#services">Услуги</a>
-    <a href="#how">Как работает</a>
-    <a href="#benefits">Преимущества</a>
-    <a href="#partners">Для кого</a>
-    <a href="/policy">Политика</a>
+<div class="landing-header">
+    <div class="landing-auth">
+        {% if user %}
+            <a href="/lk">Кабинет</a>
+        {% else %}
+            <a href="/login">Войти</a>
+        {% endif %}
+    </div>
+    <button class="landing-menu-toggle" type="button" aria-expanded="false" aria-controls="landingMenu">
+        <span>Меню</span>
+        <span class="landing-menu-icon" aria-hidden="true"></span>
+    </button>
+    <nav class="landing-nav" id="landingMenu">
+        <a href="#services">Услуги</a>
+        <a href="#how">Как работает</a>
+        <a href="#benefits">Преимущества</a>
+        <a href="#partners">Для кого</a>
+    </nav>
     {% if user %}
-        <a href="/lk" class="btn-primary">Кабинет</a>
+        <a href="/lk" class="btn-primary landing-desktop-cta">Кабинет</a>
     {% else %}
-        <a href="/login">Войти</a>
-        <a href="/register" class="btn-primary">Регистрация</a>
+        <a href="/register" class="btn-primary landing-desktop-cta">Регистрация</a>
     {% endif %}
-</nav>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -222,4 +233,26 @@
         {% endif %}
     </section>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.querySelector('.landing-menu-toggle');
+    const menu = document.querySelector('#landingMenu');
+    if (!toggle || !menu) return;
+
+    const closeMenu = () => {
+        toggle.setAttribute('aria-expanded', 'false');
+        menu.classList.remove('open');
+    };
+
+    toggle.addEventListener('click', () => {
+        const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!isOpen));
+        menu.classList.toggle('open', !isOpen);
+    });
+
+    menu.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+    });
+});
+</script>
 {% endblock %}
