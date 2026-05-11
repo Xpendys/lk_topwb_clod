@@ -583,11 +583,12 @@ table.data tr:last-child td { border-bottom: none; }
         transform: translateX(-3px) rotate(-45deg);
     }
     .landing-nav {
-        position: absolute;
-        left: 16px;
-        right: 16px;
-        top: calc(100% + 10px);
-        z-index: 10;
+        position: fixed;
+        left: 50%;
+        right: auto;
+        top: 82px;
+        z-index: 120;
+        width: min(calc(100vw - 32px), 520px);
         display: grid;
         grid-template-columns: 1fr;
         gap: 0;
@@ -597,14 +598,14 @@ table.data tr:last-child td { border-bottom: none; }
         background: rgba(50,50,50,0.98);
         box-shadow: 0 24px 60px rgba(0,0,0,0.35);
         opacity: 0;
-        transform: translateY(-8px);
+        transform: translate(-50%, -8px);
         pointer-events: none;
         visibility: hidden;
         transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
     }
     .landing-nav.open {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, 0);
         pointer-events: auto;
         visibility: visible;
     }
