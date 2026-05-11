@@ -21,6 +21,7 @@ body {
     color: var(--text);
     line-height: 1.5;
 }
+html { scroll-behavior: smooth; }
 
 /* ===== TOPBAR ===== */
 .topbar {
@@ -35,6 +36,17 @@ body {
 .brand-logo { height: 40px; }
 .topbar nav a, .topbar nav .user-name { margin-left: 16px; text-decoration: none; color: var(--muted); }
 .topbar nav .user-name { color: var(--muted); }
+.landing-nav {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.landing-nav a {
+    margin-left: 0 !important;
+    white-space: nowrap;
+}
 
 /* ===== CONTAINER ===== */
 .container { max-width: 1000px; margin: 32px auto; padding: 0 24px; }
@@ -347,9 +359,16 @@ table.data tr:last-child td { border-bottom: none; }
 }
 .mt-service-list div {
     min-height: 74px;
-    display: flex;
-    align-items: center;
-    font-weight: 700;
+}
+.mt-service-list h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    line-height: 1.2;
+}
+.mt-service-list p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
 }
 .mt-timeline {
     display: grid;
@@ -410,6 +429,37 @@ table.data tr:last-child td { border-bottom: none; }
     margin: 0 auto 30px;
 }
 
+/* ===== POLICY ===== */
+.policy-page {
+    max-width: 860px;
+    margin: 48px auto;
+}
+.policy-page h1 {
+    font-size: clamp(34px, 5vw, 58px);
+    line-height: 1;
+    margin: 0 0 24px;
+}
+.policy-page h2 {
+    margin: 34px 0 14px;
+    font-size: 24px;
+}
+.policy-page p,
+.policy-page li {
+    color: rgba(255,255,255,0.68);
+}
+.policy-page a { color: var(--primary-2); }
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.checkbox-label input {
+    width: auto;
+    margin: 3px 0 0;
+    flex-shrink: 0;
+}
+.checkbox-label a { color: var(--primary-2); }
+
 /* ===== ADMIN ===== */
 .admin-wrap { max-width: 1150px; margin: 32px auto; padding: 0 24px; }
 .balance-pos { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; }
@@ -446,6 +496,17 @@ table.data tr:last-child td { border-bottom: none; }
     .hero .btn-secondary { margin-left: auto; }
     .how { padding: 28px 24px; }
     .how.card { padding: 28px 24px; }
+    .topbar {
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .landing-nav {
+        gap: 10px 14px;
+        font-size: 14px;
+    }
+    .landing-nav .btn-primary {
+        padding: 8px 14px;
+    }
     .main-test {
         width: min(100%, calc(100vw - 32px));
     }

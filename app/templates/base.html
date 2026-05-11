@@ -5,14 +5,19 @@
     {% include "_yandex_metrika.html" %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Реферальная программа — Топай в ТОП{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Реферальная программа Топай в ТОП: выкупы ВБ, выкупы Ozon, отзывы, продвижение карточек товаров и партнёрские начисления 10% с оплаченных сделок.{% endblock %}">
+    <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+    <link rel="canonical" href="{% block canonical_url %}https://referal-top-wb.ru/{% endblock %}">
+    {% block head_extra %}{% endblock %}
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link rel="stylesheet" href="/static/style.css?v=20260511-1">
+    <link rel="stylesheet" href="/static/style.css?v=20260511-2">
 </head>
 <body>
     <header class="topbar">
         <a href="/" class="brand">
             <img src="/static/logo.png" alt="Топай в ТОП" class="brand-logo">
         </a>
+        {% block header_nav %}
         <nav>
             {% if user %}
                 <span class="user-name">{{ user.first_name }} {{ user.last_name }}</span>
@@ -24,6 +29,7 @@
                 <a href="/register" class="btn-primary">Регистрация</a>
             {% endif %}
         </nav>
+        {% endblock %}
     </header>
 
     <main class="container">
@@ -32,6 +38,9 @@
 
     <footer style="text-align:center; padding:36px 16px; color:rgba(255,255,255,0.5);">
         <p style="margin:0 0 18px; font-size:14px;">© Топай в ТОП · По вопросам свяжитесь с нами:</p>
+        <p style="margin:0 0 18px; font-size:14px;">
+            <a href="/policy" style="color:rgba(255,255,255,0.72);">Политика конфиденциальности</a>
+        </p>
         <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
             <a href="https://t.me/Oleg_toptopwb" target="_blank"
                style="display:inline-flex; align-items:center; gap:10px;

@@ -57,6 +57,11 @@ def main_test(request: Request):
     return render(request, "main_test.html")
 
 
+@app.get("/policy", response_class=HTMLResponse)
+def policy(request: Request):
+    return render(request, "policy.html")
+
+
 @app.get("/register", response_class=HTMLResponse)
 def register_get(request: Request):
     return render(request, "register.html", form={})
@@ -70,8 +75,16 @@ def register_post(
     email: str = Form(...),
     password: str = Form(...),
     platform: str = Form(...),
+    privacy_agreed: str | None = Form(None),
 ):
     form = {"first_name": first_name, "last_name": last_name, "email": email, "platform": platform}
+    if privacy_agreed != "yes":
+        return render(
+            request,
+            "register.html",
+            form=form,
+            error="Нужно согласиться с политикой конфиденциальности",
+        )
     try:
         user_id = auth.register_user(email, password, first_name, last_name, platform)
     except auth.AuthError as e:

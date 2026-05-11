@@ -1,14 +1,100 @@
 {% extends "base.html" %}
 
-{% block title %}Реферальная система Топай в ТОП{% endblock %}
+{% block title %}Выкупы ВБ и Ozon — реферальная система Топай в ТОП{% endblock %}
+{% block meta_description %}Реферальная система Топай в ТОП для партнёров: выкупы ВБ, выкупы Ozon, отзывы, вопросы, фото- и видео-контент, продвижение карточек товаров и 10% с оплаченных сделок приглашённых клиентов.{% endblock %}
+{% block canonical_url %}https://referal-top-wb.ru/{% endblock %}
+
+{% block head_extra %}
+    <meta name="keywords" content="выкупы вб, выкупы wb, выкупы wildberries, выкупы озон, выкупы ozon, отзывы wildberries, отзывы ozon, продвижение карточек, реферальная программа маркетплейсы">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Выкупы ВБ и Ozon — реферальная система Топай в ТОП">
+    <meta property="og:description" content="Партнёрская программа сервиса Топай в ТОП: рекомендуйте услуги продвижения на Wildberries и Ozon и получайте 10% с оплаченных сделок.">
+    <meta property="og:url" content="https://referal-top-wb.ru/">
+    <meta property="og:site_name" content="Топай в ТОП">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://referal-top-wb.ru/#organization",
+          "name": "Топай в ТОП",
+          "url": "https://referal-top-wb.ru/",
+          "sameAs": [
+            "https://www.toptopwb.ru/",
+            "https://t.me/Oleg_toptopwb"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://referal-top-wb.ru/#website",
+          "url": "https://referal-top-wb.ru/",
+          "name": "Реферальная система Топай в ТОП",
+          "publisher": {
+            "@id": "https://referal-top-wb.ru/#organization"
+          }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://referal-top-wb.ru/#service",
+          "name": "Выкупы ВБ и Ozon, отзывы и продвижение карточек",
+          "serviceType": "Продвижение товаров на маркетплейсах",
+          "provider": {
+            "@id": "https://referal-top-wb.ru/#organization"
+          },
+          "areaServed": "RU",
+          "description": "Сервис Топай в ТОП помогает селлерам продвигать товары на Wildberries и Ozon через выкупы, отзывы, вопросы, оценки, фото- и видео-контент."
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://referal-top-wb.ru/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "С каких услуг начисляется комиссия партнёру?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Партнёр получает 10% с любых оплаченных сделок приглашённого клиента в сервисе Топай в ТОП."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Какие услуги можно рекомендовать клиентам?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Можно рекомендовать выкупы ВБ, выкупы Ozon, отзывы, оценки, вопросы, фото- и видео-контент, а также сопровождение продвижения карточек товаров."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+{% endblock %}
+
+{% block header_nav %}
+<nav class="landing-nav">
+    <a href="#services">Услуги</a>
+    <a href="#how">Как работает</a>
+    <a href="#benefits">Преимущества</a>
+    <a href="#partners">Для кого</a>
+    <a href="/policy">Политика</a>
+    {% if user %}
+        <a href="/lk" class="btn-primary">Кабинет</a>
+    {% else %}
+        <a href="/login">Войти</a>
+        <a href="/register" class="btn-primary">Регистрация</a>
+    {% endif %}
+</nav>
+{% endblock %}
 
 {% block content %}
 <div class="main-test">
     <section class="mt-hero">
         <div class="mt-hero-copy">
-            <h1>Реферальная система <span class="gradient-text nowrap">Топай в ТОП</span></h1>
+            <h1>Выкупы ВБ и Ozon через реферальную систему <span class="gradient-text nowrap">Топай в ТОП</span></h1>
             <p class="mt-lead">
-                Приводите селлеров, которым нужны выкупы, отзывы и продвижение на Wildberries и Ozon.
+                Приводите селлеров, которым нужны выкупы ВБ, выкупы Ozon, отзывы и продвижение карточек товаров.
                 Получайте 10% с любых оплаченных сделок приглашённого клиента.
             </p>
             <div class="mt-actions">
@@ -46,9 +132,9 @@
         </div>
     </section>
 
-    <section class="mt-section mt-split">
+    <section class="mt-section mt-split" id="services">
         <div>
-            <h2>Кого вы приглашаете</h2>
+            <h2>Выкупы ВБ, выкупы Ozon и продвижение карточек товаров</h2>
             <p>
                 Топай в ТОП помогает селлерам продвигать карточки товаров через выкупы по ключевым запросам
                 и рекламе, реальные отзывы, оценки, вопросы, фото- и видео-контент.
@@ -59,15 +145,15 @@
             </p>
         </div>
         <div class="mt-service-list">
-            <div>Выкупы на Wildberries и Ozon</div>
-            <div>Отзывы, оценки и вопросы в карточке</div>
-            <div>Фото- и видео-контент для товара</div>
-            <div>Сопровождение заказов и итоговая отчётность</div>
+            <div><h3>Выкупы ВБ</h3><p>Продвижение товаров на Wildberries по ключевым запросам и согласованному сценарию.</p></div>
+            <div><h3>Выкупы Ozon</h3><p>Работа с карточками Ozon, заказами и действиями, которые помогают росту позиций.</p></div>
+            <div><h3>Отзывы, оценки и вопросы</h3><p>Реальные действия в карточке товара: отзывы, оценки, вопросы, фото и видео.</p></div>
+            <div><h3>Сопровождение и отчётность</h3><p>Контроль процесса, понятные этапы и итоговая отчётность по выполненной работе.</p></div>
         </div>
     </section>
 
-    <section class="mt-section">
-        <h2>Как это работает?</h2>
+    <section class="mt-section" id="how">
+        <h2>Как работает реферальная программа Топай в ТОП</h2>
         <div class="mt-timeline">
             <div class="mt-step">
                 <span>1</span>
@@ -92,9 +178,9 @@
         </div>
     </section>
 
-    <section class="mt-section mt-split">
+    <section class="mt-section mt-split" id="benefits">
         <div>
-            <h2>Почему партнёру легко рекомендовать сервис</h2>
+            <h2>Почему партнёру легко рекомендовать выкупы и продвижение Топай в ТОП</h2>
             <p>
                 У Топай в ТОП уже выстроены операционные процессы: собственная команда, склады,
                 ручная работа с реальными аккаунтами и сопровождение на всех этапах.
@@ -116,8 +202,8 @@
         </div>
     </section>
 
-    <section class="mt-section mt-audience">
-        <h2>Кому подходит партнёрская программа</h2>
+    <section class="mt-section mt-audience" id="partners">
+        <h2>Кому подходит партнёрская программа по выкупам ВБ и Ozon</h2>
         <div class="mt-audience-grid">
             <div>Менеджерам по работе с маркетплейсами</div>
             <div>Агентствам и компаниям, которые работают с поставщиками</div>
@@ -126,7 +212,7 @@
         </div>
     </section>
 
-    <section class="mt-final">
+    <section class="mt-final" id="signup">
         <h2>Начните зарабатывать на рекомендациях</h2>
         <p>Зарегистрируйтесь, получите ссылку и приглашайте клиентов в сервис продвижения Топай в ТОП.</p>
         {% if not user %}
