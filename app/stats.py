@@ -1,5 +1,5 @@
 """
-Запросы для личного кабинета: статистика партнёра, список рефералов, начисления с выкупов.
+Запросы для личного кабинета: статистика партнёра, список рефералов, начисления.
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from .db import db_cursor
 class UserStats(TypedDict):
     referrals_count: int
     paid_deals_count: int
-    total_earned: int     # всего начислено с выкупов за всё время
+    total_earned: int     # всего начислено за всё время
     total_paid_out: int   # всего выплачено
     balance: int          # к выплате (earned - paid_out)
 
@@ -53,7 +53,7 @@ def get_user_stats(user_id: int) -> UserStats:
 
 
 def get_user_commissions(user_id: int) -> list[dict]:
-    """Список начислений с выкупов с информацией о реферале."""
+    """Список начислений с информацией о реферале."""
     with db_cursor() as cur:
         cur.execute(
             """

@@ -49,7 +49,7 @@ def require_admin(request: Request):
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return render(request, "index.html")
+    return render(request, "main_test.html")
 
 
 @app.get("/main-test", response_class=HTMLResponse)
