@@ -52,6 +52,11 @@ def index(request: Request):
     return render(request, "index.html")
 
 
+@app.get("/main-test", response_class=HTMLResponse)
+def main_test(request: Request):
+    return render(request, "main_test.html")
+
+
 @app.get("/register", response_class=HTMLResponse)
 def register_get(request: Request):
     return render(request, "register.html", form={})
