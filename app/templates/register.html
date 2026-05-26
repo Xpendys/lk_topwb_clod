@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Регистрация — Топай в ТОП{% endblock %}
+{% block head_extra %}
+{% if smartcaptcha_site_key %}
+    <script src="https://smartcaptcha.cloud.yandex.ru/captcha.js" defer></script>
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="card narrow">
@@ -34,6 +39,12 @@
             <input type="checkbox" name="privacy_agreed" value="yes" required>
             <span>Я согласен с <a href="/policy" target="_blank">политикой конфиденциальности</a></span>
         </label>
+        {% if smartcaptcha_site_key %}
+            <div
+                class="smart-captcha captcha-box"
+                data-sitekey="{{ smartcaptcha_site_key }}"
+            ></div>
+        {% endif %}
         <button type="submit" class="btn-primary big full">Зарегистрироваться</button>
     </form>
     <p class="muted center">Уже есть аккаунт? <a href="/login">Войти</a></p>

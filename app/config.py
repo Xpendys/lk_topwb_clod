@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     SMTP_FROM_NAME: str = "Топай в ТОП"
     SMTP_USE_TLS: bool = True
 
+    # Yandex SmartCaptcha
+    SMARTCAPTCHA_SITE_KEY: str = ""
+    SMARTCAPTCHA_SERVER_KEY: str = ""
+
     # URL'ы
     PUBLIC_SITE_URL: str = "https://www.toptopwb.ru"
     LK_BASE_URL: str = "https://referal-top-wb.ru"

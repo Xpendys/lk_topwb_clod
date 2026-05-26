@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import auth, mailer, stats, webhook
+from . import auth, captcha, mailer, stats, webhook
 from .config import settings
 from .db import db_cursor, init_db
 
@@ -45,6 +45,13 @@ def require_admin(request: Request):
     return None
 
 
+def client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for", "")
+    if forwarded_for:
+        return forwarded_for.split(",", 1)[0].strip()
+    return request.client.host if request.client else ""
+
+
 # ---------- public ----------
 
 @app.get("/", response_class=HTMLResponse)
@@ -64,7 +71,12 @@ def policy(request: Request):
 
 @app.get("/register", response_class=HTMLResponse)
 def register_get(request: Request):
-    return render(request, "register.html", form={})
+    return render(
+        request,
+        "register.html",
+        form={},
+        smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
+    )
 
 
 @app.post("/register", response_class=HTMLResponse)
@@ -76,6 +88,7 @@ def register_post(
     password: str = Form(...),
     platform: str = Form(...),
     privacy_agreed: str | None = Form(None),
+    smart_token: str = Form("", alias="smart-token"),
 ):
     form = {"first_name": first_name, "last_name": last_name, "email": email, "platform": platform}
     if privacy_agreed != "yes":
@@ -84,11 +97,36 @@ def register_post(
             "register.html",
             form=form,
             error="Нужно согласиться с политикой конфиденциальности",
+            smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
         )
+    if captcha.smartcaptcha_partly_configured():
+        if not captcha.smartcaptcha_configured():
+            return render(
+                request,
+                "register.html",
+                form=form,
+                error="Проверка от ботов настроена не полностью",
+                smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
+            )
+        captcha_result = captcha.validate_smartcaptcha(smart_token, client_ip(request))
+        if not captcha_result.ok:
+            return render(
+                request,
+                "register.html",
+                form=form,
+                error=captcha_result.message,
+                smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
+            )
     try:
         user_id = auth.register_user(email, password, first_name, last_name, platform)
     except auth.AuthError as e:
-        return render(request, "register.html", form=form, error=str(e))
+        return render(
+            request,
+            "register.html",
+            form=form,
+            error=str(e),
+            smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
+        )
     token = auth.create_email_confirmation_token(user_id)
     confirmation_url = f"{settings.LK_BASE_URL}/confirm-email?token={token}"
     user = auth.get_user_by_id(user_id)
