@@ -39,6 +39,21 @@ html { scroll-behavior: smooth; }
 .brand { display: flex; align-items: center; text-decoration: none; }
 .brand-logo { height: 40px; }
 .topbar nav a, .topbar nav .user-name { margin-left: 16px; text-decoration: none; color: var(--muted); }
+.topbar nav a.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient);
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
+    opacity: 1;
+}
+.topbar nav a.btn-primary:visited,
+.topbar nav a.btn-primary:hover,
+.topbar nav a.btn-primary:active {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
+}
 .topbar nav .user-name { color: var(--muted); }
 .landing-header {
     flex: 1;
@@ -141,12 +156,15 @@ form select option { background: #323232; }
 }
 .btn-primary {
     background: var(--gradient);
-    color: #fff;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
+    opacity: 1;
 }
 .btn-primary:visited,
 .btn-primary:hover,
 .btn-primary:active {
-    color: #fff;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
 }
 .auth-register-btn,
 .auth-register-btn:visited,
@@ -155,7 +173,7 @@ form select option { background: #323232; }
     color: #fff !important;
     -webkit-text-fill-color: #fff;
 }
-.btn-primary:hover { filter: brightness(0.95); }
+.btn-primary:hover { filter: brightness(0.98); }
 .btn-secondary {
     background: transparent;
     color: var(--text);
