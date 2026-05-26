@@ -20,6 +20,7 @@
         <input type="hidden" name="email" value="{{ form.email or '' }}">
         <button type="submit" class="link-btn" style="margin: 12px 0 0;">Отправить письмо подтверждения ещё раз</button>
     </form>
-    <p class="muted center">Нет аккаунта? <a href="/register">Зарегистрироваться</a></p>
+    <p class="muted center">Нет аккаунта?</p>
+    <a href="/register" class="btn-primary big full auth-register-btn">Регистрация</a>
 </div>
 {% endblock %}
