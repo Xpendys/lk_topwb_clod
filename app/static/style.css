@@ -137,7 +137,7 @@ form select option { background: #323232; }
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
-    transition: opacity 0.2s;
+    transition: filter 0.2s, border-color 0.2s;
 }
 .btn-primary {
     background: var(--gradient);
@@ -148,8 +148,14 @@ form select option { background: #323232; }
 .btn-primary:active {
     color: #fff;
 }
-.auth-register-btn { color: #fff; }
-.btn-primary:hover { opacity: 0.85; }
+.auth-register-btn,
+.auth-register-btn:visited,
+.auth-register-btn:hover,
+.auth-register-btn:active {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff;
+}
+.btn-primary:hover { filter: brightness(0.95); }
 .btn-secondary {
     background: transparent;
     color: var(--text);
