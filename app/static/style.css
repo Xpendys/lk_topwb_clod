@@ -143,6 +143,11 @@ form select option { background: #323232; }
     background: var(--gradient);
     color: #fff;
 }
+.btn-primary:visited,
+.btn-primary:hover,
+.btn-primary:active {
+    color: #fff;
+}
 .auth-register-btn { color: #fff; }
 .btn-primary:hover { opacity: 0.85; }
 .btn-secondary {
