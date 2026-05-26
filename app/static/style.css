@@ -141,8 +141,9 @@ form select option { background: #323232; }
 }
 .btn-primary {
     background: var(--gradient);
-    color: white;
+    color: #fff;
 }
+.auth-register-btn { color: #fff; }
 .btn-primary:hover { opacity: 0.85; }
 .btn-secondary {
     background: transparent;
@@ -506,8 +507,10 @@ table.data tr:last-child td { border-bottom: none; }
 }
 .checkbox-label a { color: var(--primary-2); }
 .captcha-box {
+    width: 100%;
     min-height: 100px;
     margin: 14px 0 18px;
+    overflow: hidden;
 }
 
 /* ===== ADMIN ===== */
@@ -530,6 +533,18 @@ table.data tr:last-child td { border-bottom: none; }
 .payout-form button:hover { opacity: 0.85; }
 
 @media (max-width: 700px) {
+    .container {
+        margin: 24px auto;
+        padding: 0 16px;
+    }
+    .card {
+        padding: 22px;
+        border-radius: 22px;
+    }
+    .card.narrow {
+        max-width: none;
+        margin: 32px auto;
+    }
     .lk-layout { flex-direction: column; }
     .lk-sidebar { width: 100%; position: static; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -666,6 +681,15 @@ table.data tr:last-child td { border-bottom: none; }
     }
     .mt-audience-grid div {
         min-height: auto;
+    }
+}
+
+@media (max-width: 360px) {
+    .container {
+        padding: 0 12px;
+    }
+    .card {
+        padding: 18px 10px;
     }
 }
 
