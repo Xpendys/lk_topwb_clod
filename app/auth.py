@@ -73,6 +73,7 @@ def register_user(
     first_name: str,
     last_name: str,
     platform: str,
+    parent_ref_code: str = "",
 ) -> int:
     email = email.strip().lower()
     if not email or "@" not in email:
@@ -92,12 +93,31 @@ def register_user(
         if cur.fetchone() is not None:
             raise AuthError("Пользователь с таким email уже существует")
 
+        parent_user_id = None
+        parent_ref_code = parent_ref_code.strip().upper()
+        if parent_ref_code:
+            cur.execute("SELECT id FROM users WHERE ref_code = ?", (parent_ref_code,))
+            parent_row = cur.fetchone()
+            if parent_row is not None:
+                parent_user_id = int(parent_row["id"])
+
         cur.execute(
             """
-            INSERT INTO users (ref_code, email, password_hash, first_name, last_name, platform, email_confirmed)
-            VALUES (?, ?, ?, ?, ?, ?, 0)
+            INSERT INTO users (
+                ref_code, email, password_hash, first_name, last_name,
+                platform, parent_user_id, email_confirmed
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
             """,
-            (ref_code, email, pw_hash, first_name.strip(), last_name.strip(), platform),
+            (
+                ref_code,
+                email,
+                pw_hash,
+                first_name.strip(),
+                last_name.strip(),
+                platform,
+                parent_user_id,
+            ),
         )
         return cur.lastrowid
 

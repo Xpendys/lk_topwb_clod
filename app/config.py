@@ -36,6 +36,7 @@ class Settings(BaseSettings):
 
     # Бизнес-логика
     COMMISSION_PERCENT: int = 10
+    SECOND_LEVEL_COMMISSION_PERCENT: int = 5
 
     # БД
     DATABASE_PATH: str = "./referal.db"

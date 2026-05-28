@@ -20,7 +20,8 @@
      - если контакт ещё не известен, находим партнёра по referer_code
      - создаём пожизненную связку amo_contact_id -> партнёр
      - проверяем что для этой сделки ещё не было начисления (UNIQUE на amo_lead_id)
-     - считаем 10% от бюджета сделки и записываем в commissions
+     - считаем 10% первому уровню
+     - если у партнёра есть наставник, считаем ему 5% вторым уровнем
 """
 from __future__ import annotations
 
@@ -126,8 +127,11 @@ async def amo_webhook(
 
     # 4) Идём в БД
     with db_cursor() as cur:
-        # Защита от повторного начисления (Albato может ретраить запрос)
-        cur.execute("SELECT 1 FROM commissions WHERE amo_lead_id = ?", (amo_lead_id,))
+        # Защита от повторного начисления первого уровня (Albato может ретраить запрос)
+        cur.execute(
+            "SELECT 1 FROM commissions WHERE amo_lead_id = ? AND commission_level = 1",
+            (amo_lead_id,),
+        )
         if cur.fetchone() is not None:
             return {"status": "ignored", "reason": "already processed"}
 
@@ -158,11 +162,38 @@ async def amo_webhook(
 
         cur.execute(
             """
-            INSERT INTO commissions (user_id, referral_id, amo_lead_id, deal_budget, commission_amount)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO commissions (
+                user_id, referral_id, amo_lead_id, deal_budget,
+                commission_amount, commission_level
+            )
+            VALUES (?, ?, ?, ?, ?, 1)
             """,
             (user_id, referral_id, amo_lead_id, deal_budget, commission),
         )
+
+        cur.execute("SELECT parent_user_id FROM users WHERE id = ?", (user_id,))
+        direct_user = cur.fetchone()
+        parent_user_id = int(direct_user["parent_user_id"]) if direct_user and direct_user["parent_user_id"] else None
+        second_level_commission = 0
+        if parent_user_id and parent_user_id != user_id:
+            second_level_commission = deal_budget * settings.SECOND_LEVEL_COMMISSION_PERCENT // 100
+            if second_level_commission > 0:
+                cur.execute(
+                    """
+                    INSERT OR IGNORE INTO commissions (
+                        user_id, referral_id, amo_lead_id, deal_budget,
+                        commission_amount, commission_level
+                    )
+                    VALUES (?, ?, ?, ?, ?, 2)
+                    """,
+                    (
+                        parent_user_id,
+                        referral_id,
+                        amo_lead_id,
+                        deal_budget,
+                        second_level_commission,
+                    ),
+                )
 
     return {
         "status": "ok",
@@ -171,4 +202,6 @@ async def amo_webhook(
         "attribution": attribution,
         "deal_budget": deal_budget,
         "commission": commission,
+        "second_level_user_id": parent_user_id,
+        "second_level_commission": second_level_commission,
     }

@@ -62,6 +62,7 @@ def get_user_commissions(user_id: int) -> list[dict]:
                 c.amo_lead_id,
                 c.deal_budget,
                 c.commission_amount,
+                COALESCE(c.commission_level, 1) AS commission_level,
                 c.created_at,
                 COALESCE(r.contact_label, '—') AS contact_label
             FROM commissions c

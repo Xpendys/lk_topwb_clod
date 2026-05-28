@@ -57,6 +57,7 @@ def init_db() -> None:
                 first_name      TEXT NOT NULL,
                 last_name       TEXT NOT NULL,
                 platform        TEXT NOT NULL CHECK (platform IN ('wb','ozon','both')),
+                parent_user_id  INTEGER REFERENCES users(id) ON DELETE SET NULL,
                 email_confirmed INTEGER NOT NULL DEFAULT 1,
                 email_confirmed_at TIMESTAMP,
                 created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -80,13 +81,16 @@ def init_db() -> None:
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 referral_id     INTEGER REFERENCES referrals(id) ON DELETE SET NULL,
-                amo_lead_id     INTEGER NOT NULL UNIQUE,   -- id сделки в АМО, чтобы не начислить дважды
+                amo_lead_id     INTEGER NOT NULL,          -- id сделки в АМО
                 deal_budget     INTEGER NOT NULL,          -- бюджет сделки, рубли
                 commission_amount   INTEGER NOT NULL,      -- начислено партнёру, рубли
-                created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                commission_level INTEGER NOT NULL DEFAULT 1 CHECK (commission_level IN (1,2)),
+                created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (amo_lead_id, user_id, commission_level)
             );
 
             CREATE INDEX IF NOT EXISTS idx_commissions_user ON commissions(user_id);
+            CREATE INDEX IF NOT EXISTS idx_commissions_lead ON commissions(amo_lead_id);
 
             CREATE TABLE IF NOT EXISTS payouts (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,8 +120,64 @@ def init_db() -> None:
             ("requisites_bank", "TEXT"),
             ("email_confirmed", "INTEGER NOT NULL DEFAULT 1"),
             ("email_confirmed_at", "TIMESTAMP"),
+            ("parent_user_id", "INTEGER REFERENCES users(id) ON DELETE SET NULL"),
         ]:
             try:
                 cur.execute(f"ALTER TABLE users ADD COLUMN {_col} {_def}")
             except Exception:
                 pass
+
+        _migrate_commissions_for_two_levels(cur)
+
+
+def _migrate_commissions_for_two_levels(cur: sqlite3.Cursor) -> None:
+    """Переводит commissions на схему, где одна сделка может дать 10% и 5%."""
+    cur.execute("PRAGMA table_info(commissions)")
+    columns = {row["name"] for row in cur.fetchall()}
+
+    cur.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='commissions'"
+    )
+    row = cur.fetchone()
+    table_sql = row["sql"] if row else ""
+
+    if "commission_level" in columns and "UNIQUE (amo_lead_id, user_id, commission_level)" in table_sql:
+        return
+
+    cur.execute("ALTER TABLE commissions RENAME TO commissions_old_two_levels")
+    cur.executescript(
+        """
+        DROP INDEX IF EXISTS idx_commissions_user;
+        DROP INDEX IF EXISTS idx_commissions_lead;
+
+        CREATE TABLE commissions (
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id         INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            referral_id     INTEGER REFERENCES referrals(id) ON DELETE SET NULL,
+            amo_lead_id     INTEGER NOT NULL,
+            deal_budget     INTEGER NOT NULL,
+            commission_amount   INTEGER NOT NULL,
+            commission_level INTEGER NOT NULL DEFAULT 1 CHECK (commission_level IN (1,2)),
+            created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (amo_lead_id, user_id, commission_level)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_commissions_user ON commissions(user_id);
+        CREATE INDEX IF NOT EXISTS idx_commissions_lead ON commissions(amo_lead_id);
+        """
+    )
+
+    old_level_expr = "commission_level" if "commission_level" in columns else "1"
+    cur.execute(
+        f"""
+        INSERT OR IGNORE INTO commissions (
+            id, user_id, referral_id, amo_lead_id, deal_budget,
+            commission_amount, commission_level, created_at
+        )
+        SELECT
+            id, user_id, referral_id, amo_lead_id, deal_budget,
+            commission_amount, {old_level_expr}, created_at
+        FROM commissions_old_two_levels
+        """
+    )
+    cur.execute("DROP TABLE commissions_old_two_levels")

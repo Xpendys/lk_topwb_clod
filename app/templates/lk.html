@@ -9,9 +9,14 @@
     <h2>Ваша реферальная ссылка</h2>
     <div class="ref-box">
         <input id="refLink" type="text" readonly value="{{ ref_link }}">
-        <button type="button" class="btn-primary" onclick="copyRef()">Скопировать</button>
+        <button type="button" class="btn-primary" onclick="copyRef('refLink', event)">Скопировать</button>
     </div>
     <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит любую услугу — мы учтём приглашение в вашей статистике.</p>
+    <p class="muted">Чтобы пригласить нового партнёра и получать 5% со сделок его клиентов, отправьте ему эту ссылку:</p>
+    <div class="ref-box">
+        <input id="partnerRefLink" type="text" readonly value="{{ partner_ref_link }}">
+        <button type="button" class="btn-primary" onclick="copyRef('partnerRefLink', event)">Скопировать</button>
+    </div>
 </section>
 
 <section class="stats-grid">
@@ -57,13 +62,14 @@
     {% if commissions %}
     <table class="data">
         <thead>
-            <tr><th>Дата</th><th>Клиент</th><th>Начислено</th></tr>
+            <tr><th>Дата</th><th>Клиент</th><th>Уровень</th><th>Начислено</th></tr>
         </thead>
         <tbody>
             {% for c in commissions %}
             <tr>
                 <td>{{ c.created_at if c.created_at is string else c.created_at.strftime('%Y-%m-%d') }}</td>
                 <td>{{ c.contact_label }}</td>
+                <td>{% if c.commission_level == 2 %}2 уровень{% else %}1 уровень{% endif %}</td>
                 <td>{{ "{:,}".format(c.commission_amount).replace(",", " ") }} ₽</td>
             </tr>
             {% endfor %}
@@ -75,8 +81,8 @@
 </section>
 
 <script>
-function copyRef() {
-    navigator.clipboard.writeText(document.getElementById('refLink').value);
+function copyRef(inputId, event) {
+    navigator.clipboard.writeText(document.getElementById(inputId).value);
     const btn = event.target;
     const old = btn.textContent;
     btn.textContent = 'Скопировано!';

@@ -18,6 +18,7 @@ app = FastAPI(title="Топай в ТОП · Реферальная програ
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 logger = logging.getLogger(__name__)
+PARTNER_REF_COOKIE = "partner_ref"
 
 app.include_router(webhook.router)
 
@@ -56,7 +57,17 @@ def client_ip(request: Request) -> str:
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return render(request, "main_test.html")
+    response = render(request, "main_test.html")
+    ref_code = request.query_params.get("ref", "").strip().upper()
+    if ref_code:
+        response.set_cookie(
+            PARTNER_REF_COOKIE,
+            ref_code,
+            max_age=60 * 60 * 24 * 90,
+            httponly=True,
+            samesite="lax",
+        )
+    return response
 
 
 @app.get("/main-test", response_class=HTMLResponse)
@@ -71,12 +82,22 @@ def policy(request: Request):
 
 @app.get("/register", response_class=HTMLResponse)
 def register_get(request: Request):
-    return render(
+    response = render(
         request,
         "register.html",
         form={},
         smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
     )
+    ref_code = request.query_params.get("ref", "").strip().upper()
+    if ref_code:
+        response.set_cookie(
+            PARTNER_REF_COOKIE,
+            ref_code,
+            max_age=60 * 60 * 24 * 90,
+            httponly=True,
+            samesite="lax",
+        )
+    return response
 
 
 @app.post("/register", response_class=HTMLResponse)
@@ -118,7 +139,14 @@ def register_post(
                 smartcaptcha_site_key=settings.SMARTCAPTCHA_SITE_KEY,
             )
     try:
-        user_id = auth.register_user(email, password, first_name, last_name, platform)
+        user_id = auth.register_user(
+            email,
+            password,
+            first_name,
+            last_name,
+            platform,
+            parent_ref_code=request.cookies.get(PARTNER_REF_COOKIE, ""),
+        )
     except auth.AuthError as e:
         return render(
             request,
@@ -137,7 +165,9 @@ def register_post(
         logger.exception("Failed to send confirmation email to %s", user["email"])
         sent = False
         send_error = str(exc)
-    return render(request, "check_email.html", email=email.strip().lower(), sent=sent, send_error=send_error)
+    response = render(request, "check_email.html", email=email.strip().lower(), sent=sent, send_error=send_error)
+    response.delete_cookie(PARTNER_REF_COOKIE)
+    return response
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -203,8 +233,10 @@ def lk(request: Request):
     referrals = stats.get_user_referrals(user["id"])
     commissions = stats.get_user_commissions(user["id"])
     ref_link = f"{settings.PUBLIC_SITE_URL}/?ref={user['ref_code']}"
+    partner_ref_link = f"{settings.LK_BASE_URL}/?ref={user['ref_code']}"
     return render(request, "lk.html", stats=user_stats, referrals=referrals,
                   commissions=commissions, ref_link=ref_link,
+                  partner_ref_link=partner_ref_link,
                   commission_percent=settings.COMMISSION_PERCENT)
 
 
