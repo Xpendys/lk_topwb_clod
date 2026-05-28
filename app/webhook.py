@@ -16,8 +16,9 @@
   4. Запрос подписан секретным ключом в query-параметре ?secret=...
   5. Мы:
      - проверяем секрет
-     - находим партнёра по referer_code
-     - находим/создаём referral по amo_contact_id
+     - сначала ищем уже известного реферала по amo_contact_id
+     - если контакт ещё не известен, находим партнёра по referer_code
+     - создаём пожизненную связку amo_contact_id -> партнёр
      - проверяем что для этой сделки ещё не было начисления (UNIQUE на amo_lead_id)
      - считаем 10% от бюджета сделки и записываем в commissions
 """
@@ -64,6 +65,23 @@ def _ensure_referral(cur, user_id: int, amo_contact_id: Optional[int]) -> Option
     return int(cur.lastrowid)
 
 
+def _find_referral_by_contact(cur, amo_contact_id: Optional[int]) -> Optional[dict]:
+    """Возвращает пожизненную связку контакта с партнёром, если она уже есть."""
+    if amo_contact_id is None:
+        return None
+
+    cur.execute(
+        """
+        SELECT id, user_id
+        FROM referrals
+        WHERE amo_contact_id = ?
+        """,
+        (amo_contact_id,),
+    )
+    row = cur.fetchone()
+    return dict(row) if row else None
+
+
 @router.post("/api/amo-webhook")
 async def amo_webhook(
     request: Request,
@@ -103,9 +121,6 @@ async def amo_webhook(
 
     if amo_lead_id <= 0:
         raise HTTPException(status_code=400, detail="amo_lead_id is required")
-    if not referer_code:
-        # Это нормальная ситуация — сделка пришла НЕ от реферала. Просто игнорируем.
-        return {"status": "ignored", "reason": "no referer"}
     if deal_budget <= 0:
         return {"status": "ignored", "reason": "zero deal budget"}
 
@@ -116,15 +131,27 @@ async def amo_webhook(
         if cur.fetchone() is not None:
             return {"status": "ignored", "reason": "already processed"}
 
-        # Ищем партнёра по реф-коду
-        cur.execute("SELECT id FROM users WHERE ref_code = ?", (referer_code,))
-        user_row = cur.fetchone()
-        if user_row is None:
-            return {"status": "ignored", "reason": f"unknown referer {referer_code}"}
-        user_id = int(user_row["id"])
+        known_referral = _find_referral_by_contact(cur, amo_contact_id)
+        if known_referral is not None:
+            # Контакт уже был однажды привязан к партнёру. Все последующие
+            # оплаченные сделки этого контакта начисляем тому же партнёру.
+            user_id = int(known_referral["user_id"])
+            referral_id = int(known_referral["id"])
+            attribution = "known_contact"
+        else:
+            if not referer_code:
+                # Неизвестный контакт без реф-кода — обычная нереферальная сделка.
+                return {"status": "ignored", "reason": "no referer or known contact"}
 
-        # Привязываем/создаём реферала
-        referral_id = _ensure_referral(cur, user_id, amo_contact_id)
+            # Первый заказ реферала: ищем партнёра по реф-коду и создаём
+            # пожизненную связку контакта с этим партнёром.
+            cur.execute("SELECT id FROM users WHERE ref_code = ?", (referer_code,))
+            user_row = cur.fetchone()
+            if user_row is None:
+                return {"status": "ignored", "reason": f"unknown referer {referer_code}"}
+            user_id = int(user_row["id"])
+            referral_id = _ensure_referral(cur, user_id, amo_contact_id)
+            attribution = "new_referer"
 
         # Считаем комиссию от бюджета сделки (целые рубли, отбрасываем копейки).
         commission = deal_budget * settings.COMMISSION_PERCENT // 100
@@ -140,6 +167,8 @@ async def amo_webhook(
     return {
         "status": "ok",
         "user_id": user_id,
+        "referral_id": referral_id,
+        "attribution": attribution,
         "deal_budget": deal_budget,
         "commission": commission,
     }
