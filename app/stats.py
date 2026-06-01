@@ -121,32 +121,40 @@ def get_all_users_admin() -> list[dict]:
             GROUP BY u.id
             ORDER BY balance DESC
         """)
-        return [dict(row) for row in cur.fetchall()]
+        users = [dict(row) for row in cur.fetchall()]
 
-
-def get_all_users_admin() -> list[dict]:
-    """Все партнёры с балансом и реквизитами (для админ-панели)."""
-    with db_cursor() as cur:
         cur.execute("""
             SELECT
-                u.id,
-                u.first_name,
-                u.last_name,
-                u.email,
-                u.ref_code,
-                COALESCE(u.requisites_phone, '') AS requisites_phone,
-                COALESCE(u.requisites_bank, '') AS requisites_bank,
-                COALESCE(u.requisites_name, '') AS requisites_name,
-                COALESCE(SUM(c.commission_amount), 0) AS total_earned,
-                COALESCE(pp.total_paid, 0) AS total_paid_out,
-                COALESCE(SUM(c.commission_amount), 0) - COALESCE(pp.total_paid, 0) AS balance,
-                (SELECT COUNT(*) FROM referrals r WHERE r.user_id = u.id) AS referrals_count
-            FROM users u
-            LEFT JOIN commissions c ON c.user_id = u.id
-            LEFT JOIN (
-                SELECT user_id, SUM(amount) AS total_paid FROM payouts GROUP BY user_id
-            ) pp ON pp.user_id = u.id
-            GROUP BY u.id
-            ORDER BY balance DESC
+                parent.id AS parent_id,
+                child.id AS partner_id,
+                child.first_name,
+                child.last_name,
+                child.email,
+                child.ref_code,
+                child.created_at,
+                COUNT(DISTINCT r.id) AS clients_count,
+                COUNT(DISTINCT c.amo_lead_id) AS paid_deals_count,
+                COALESCE(SUM(c.commission_amount), 0) AS earned_for_parent
+            FROM users child
+            JOIN users parent ON parent.id = child.parent_user_id
+            LEFT JOIN referrals r ON r.user_id = child.id
+            LEFT JOIN commissions c
+                ON c.user_id = parent.id
+                AND c.commission_level = 2
+                AND c.referral_id = r.id
+            GROUP BY child.id
+            ORDER BY earned_for_parent DESC, child.created_at DESC
         """)
-        return [dict(row) for row in cur.fetchall()]
+        second_level_by_parent: dict[int, list[dict]] = {}
+        for row in cur.fetchall():
+            item = dict(row)
+            parent_id = int(item.pop("parent_id"))
+            second_level_by_parent.setdefault(parent_id, []).append(item)
+
+    for user in users:
+        partners = second_level_by_parent.get(int(user["id"]), [])
+        user["second_level_partners"] = partners
+        user["second_level_partners_count"] = len(partners)
+        user["second_level_earned"] = sum(int(p["earned_for_parent"]) for p in partners)
+
+    return users

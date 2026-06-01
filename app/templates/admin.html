@@ -16,6 +16,38 @@
         .admin-table-wrap table.data td:first-child { padding-left: 20px; }
         .admin-table-wrap table.data th:last-child,
         .admin-table-wrap table.data td:last-child { padding-right: 20px; }
+        .admin-second-level summary {
+            cursor: pointer;
+            color: var(--primary-2);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .admin-second-level[open] summary { margin-bottom: 10px; }
+        .admin-second-level-list {
+            display: grid;
+            gap: 8px;
+            min-width: 270px;
+        }
+        .admin-second-level-item {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.03);
+        }
+        .admin-second-level-name {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+        .admin-second-level-meta {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .admin-second-level-money {
+            margin-top: 6px;
+            font-weight: 800;
+        }
     </style>
 </head>
 <body>
@@ -39,6 +71,7 @@
                         <th>Реквизиты</th>
                         <th>ФИО</th>
                         <th>Приглашено</th>
+                        <th>2 уровень</th>
                         <th>Заработано</th>
                         <th>Выплачено</th>
                         <th>К выплате</th>
@@ -62,6 +95,34 @@
                         </td>
                         <td style="white-space:nowrap; font-size:13px;">{{ u.requisites_name or '—' }}</td>
                         <td style="text-align:center;">{{ u.referrals_count }}</td>
+                        <td>
+                            {% if u.second_level_partners_count %}
+                                <details class="admin-second-level">
+                                    <summary>
+                                        {{ u.second_level_partners_count }} партн. ·
+                                        {{ "{:,}".format(u.second_level_earned).replace(",", " ") }} ₽
+                                    </summary>
+                                    <div class="admin-second-level-list">
+                                        {% for p in u.second_level_partners %}
+                                        <div class="admin-second-level-item">
+                                            <div class="admin-second-level-name">
+                                                {{ p.first_name }} {{ p.last_name }}
+                                            </div>
+                                            <div class="admin-second-level-meta">
+                                                {{ p.email }}<br>
+                                                Код: {{ p.ref_code }} · Клиентов: {{ p.clients_count }} · Сделок: {{ p.paid_deals_count }}
+                                            </div>
+                                            <div class="admin-second-level-money balance-pos">
+                                                5% начислено: {{ "{:,}".format(p.earned_for_parent).replace(",", " ") }} ₽
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            {% else %}
+                                <span class="muted">—</span>
+                            {% endif %}
+                        </td>
                         <td style="white-space:nowrap;">{{ "{:,}".format(u.total_earned).replace(",", " ") }} ₽</td>
                         <td style="white-space:nowrap;">{{ "{:,}".format(u.total_paid_out).replace(",", " ") }} ₽</td>
                         <td style="white-space:nowrap;">
