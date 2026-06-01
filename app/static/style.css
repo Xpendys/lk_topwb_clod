@@ -246,15 +246,27 @@ form select option { background: #323232; }
     border-color: rgba(217,28,245,0.3);
     color: #e768fa;
 }
-.ref-box { display: flex; gap: 10px; margin: 16px 0; }
+.ref-box {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 16px 0 0;
+}
 .ref-box input {
-    flex: 1; padding: 13px 18px;
+    width: 100%;
+    min-width: 0;
+    padding: 13px 18px;
     background: #252525;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     font-size: 14px;
     font-family: monospace;
     color: var(--text);
+}
+.ref-box .btn-primary {
+    width: 100%;
+    text-align: center;
+    margin: 0;
 }
 
 /* ===== STATS GRID ===== */
@@ -625,13 +637,6 @@ table.data tr:last-child td { border-bottom: none; }
     .lk-sidebar { width: 100%; position: static; }
     .ref-links-grid { grid-template-columns: 1fr; }
     .ref-link-head { flex-direction: column; }
-    .ref-box {
-        flex-direction: column;
-    }
-    .ref-box .btn-primary {
-        width: 100%;
-        text-align: center;
-    }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .hero { width: auto; margin: 0; padding: 64px 0; }
     .hero h1 { font-size: 34px; white-space: normal; }
