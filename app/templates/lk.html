@@ -5,18 +5,44 @@
 {% block lk_content %}
 <h1>Здравствуйте, {{ user.first_name }}!</h1>
 
-<section class="card">
-    <h2>Ваша реферальная ссылка</h2>
-    <div class="ref-box">
-        <input id="refLink" type="text" readonly value="{{ ref_link }}">
-        <button type="button" class="btn-primary" onclick="copyRef('refLink', event)">Скопировать</button>
-    </div>
-    <p class="muted">Делитесь этой ссылкой. Когда клиент по ней оставит заявку и оплатит любую услугу — мы учтём приглашение в вашей статистике.</p>
-    <p class="muted">Чтобы пригласить нового партнёра и получать 5% со сделок его клиентов, отправьте ему эту ссылку:</p>
-    <div class="ref-box">
-        <input id="partnerRefLink" type="text" readonly value="{{ partner_ref_link }}">
-        <button type="button" class="btn-primary" onclick="copyRef('partnerRefLink', event)">Скопировать</button>
-    </div>
+<section class="ref-links-grid">
+    <article class="card ref-link-card">
+        <div class="ref-link-head">
+            <div>
+                <p class="ref-link-kicker">Ссылка для клиентов</p>
+                <h2>Получать 10% с оплат клиента</h2>
+            </div>
+            <span class="ref-link-badge">1 уровень</span>
+        </div>
+        <p class="muted">
+            Отправляйте эту ссылку селлерам и клиентам, которым нужны выкупы, отзывы или продвижение.
+            Когда клиент оставит заявку и оплатит любую услугу, он закрепится за вами пожизненно,
+            а вы получите 10% с его оплаченных сделок.
+        </p>
+        <div class="ref-box">
+            <input id="refLink" type="text" readonly value="{{ ref_link }}">
+            <button type="button" class="btn-primary" onclick="copyRef('refLink', event)">Скопировать</button>
+        </div>
+    </article>
+
+    <article class="card ref-link-card">
+        <div class="ref-link-head">
+            <div>
+                <p class="ref-link-kicker">Ссылка для партнёров</p>
+                <h2>Получать 5% со второго уровня</h2>
+            </div>
+            <span class="ref-link-badge ref-link-badge-secondary">2 уровень</span>
+        </div>
+        <p class="muted">
+            Отправляйте эту ссылку людям, которые сами хотят стать партнёрами Топай в ТОП.
+            Если такой партнёр пригласит своих клиентов, вы будете получать 5% с оплаченных сделок
+            его клиентов как наставник второго уровня.
+        </p>
+        <div class="ref-box">
+            <input id="partnerRefLink" type="text" readonly value="{{ partner_ref_link }}">
+            <button type="button" class="btn-primary" onclick="copyRef('partnerRefLink', event)">Скопировать</button>
+        </div>
+    </article>
 </section>
 
 <section class="stats-grid">
