@@ -35,6 +35,7 @@ body {
     background: var(--bg);
     color: var(--text);
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 .design-preview-bar {
@@ -709,6 +710,215 @@ table.data tr:last-child td {
     margin: 0 0 24px;
 }
 
+.mt-hero-v2 {
+    position: relative;
+    isolation: isolate;
+    min-height: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 72px 0 0;
+    text-align: center;
+}
+
+.mt-hero-v2::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    z-index: -1;
+    width: 100vw;
+    content: "";
+    background-color: #ffffff;
+    background-image: url("/static/referral-grid.svg");
+    background-position: center top;
+    background-size: cover;
+    transform: translateX(-50%);
+}
+
+.mt-hero-v2-copy {
+    position: relative;
+    z-index: 3;
+    width: min(100%, 960px);
+}
+
+.mt-hero-v2 .mt-eyebrow {
+    margin-bottom: 14px !important;
+}
+
+.mt-hero-v2 h1 {
+    margin: 0 auto 24px;
+    font-size: 66px;
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: 0;
+}
+
+.marketplace-lockup {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 5px;
+    vertical-align: 0.1em;
+}
+
+.marketplace-badge {
+    width: 60px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -8px;
+    border: 4px solid #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(50, 22, 67, 0.12);
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.marketplace-badge:first-child {
+    margin-left: 0;
+}
+
+.market-wb {
+    background: #df15dc;
+    transform: rotate(-7deg);
+}
+
+.market-ozon {
+    background: linear-gradient(135deg, #166eff 0 36%, #ff1b83 36% 68%, #ff3b30 68%);
+    transform: rotate(5deg);
+}
+
+.market-yandex {
+    background: #ff8a00;
+    font-size: 29px;
+    transform: rotate(8deg);
+}
+
+.mt-hero-v2 .mt-lead {
+    max-width: 800px;
+    margin: 0 auto 30px;
+    font-size: 20px;
+}
+
+.mt-hero-v2 .mt-actions {
+    justify-content: center;
+}
+
+.mt-hero-visual {
+    position: relative;
+    width: min(100%, 940px);
+    height: 560px;
+    margin-top: 42px;
+}
+
+.mt-hero-phone {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 430px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 24px 38px rgba(69, 17, 93, 0.2));
+    transform: translateX(-50%);
+}
+
+.hero-stat {
+    position: absolute;
+    z-index: 2;
+    width: 286px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 18px 28px;
+    border: 1px solid #f3e9f3;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 42px rgba(65, 23, 77, 0.12);
+    text-align: left;
+}
+
+.hero-stat strong {
+    color: #0f0d0f;
+    font-size: 34px;
+    line-height: 1;
+}
+
+.hero-stat span {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.hero-stat-sales {
+    top: 62px;
+    left: 38px;
+}
+
+.hero-stat-partners {
+    top: 240px;
+    right: 12px;
+}
+
+.hero-stat-pvz {
+    top: 400px;
+    left: 112px;
+}
+
+.mt-referral-grid {
+    position: relative;
+    z-index: 4;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: -34px 0 82px;
+}
+
+.mt-referral-card {
+    min-height: 250px;
+    padding: 30px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 22px 52px rgba(61, 15, 89, 0.08);
+}
+
+.mt-referral-card:first-child {
+    background: #fff4ff;
+}
+
+.mt-referral-number,
+.mt-referral-word {
+    display: block;
+    margin-bottom: 24px;
+    color: var(--primary-2);
+    font-size: 62px;
+    font-weight: 800;
+    line-height: 0.9;
+}
+
+.mt-referral-word {
+    padding-top: 14px;
+    font-size: 34px;
+}
+
+.mt-referral-card h2 {
+    margin: 0 0 12px;
+    font-size: 24px;
+    line-height: 1.12;
+}
+
+.mt-referral-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+}
+
 .mt-hero {
     min-height: 590px;
     display: grid;
@@ -820,6 +1030,29 @@ table.data tr:last-child td {
     border: 1px solid var(--border);
     border-radius: 28px;
     scroll-margin-top: 96px;
+}
+
+.mt-section#services {
+    padding-top: 62px;
+    padding-bottom: 62px;
+}
+
+.mt-section#how {
+    background: #3d0f59;
+    border-color: #3d0f59;
+    color: #ffffff;
+}
+
+.mt-section#how .mt-step {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.mt-section#how .mt-step p {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.mt-section#benefits {
+    background: #fff4ff;
 }
 
 .mt-section h2,
@@ -1172,6 +1405,36 @@ table.data tr:last-child td {
 }
 
 @media (max-width: 900px) {
+    .mt-hero-v2 {
+        min-height: 840px;
+        padding-top: 58px;
+    }
+
+    .mt-hero-v2 h1 {
+        font-size: 54px;
+    }
+
+    .mt-hero-visual {
+        width: min(100%, 760px);
+        height: 540px;
+    }
+
+    .hero-stat-sales {
+        left: 0;
+    }
+
+    .hero-stat-partners {
+        right: 0;
+    }
+
+    .hero-stat-pvz {
+        left: 54px;
+    }
+
+    .mt-referral-card {
+        padding: 24px;
+    }
+
     .mt-hero {
         grid-template-columns: 1fr;
         min-height: auto;
@@ -1411,6 +1674,103 @@ table.data tr:last-child td {
         width: min(100%, calc(100vw - 32px));
     }
 
+    .mt-hero-v2 {
+        min-height: 760px;
+        padding-top: 44px;
+    }
+
+    .mt-hero-v2 h1 {
+        font-size: 42px;
+        line-height: 1.02;
+    }
+
+    .marketplace-lockup {
+        display: flex;
+        width: max-content;
+        margin: 12px auto 10px;
+    }
+
+    .marketplace-badge {
+        width: 50px;
+        height: 40px;
+        border-width: 3px;
+        border-radius: 12px;
+        font-size: 16px;
+    }
+
+    .market-yandex {
+        font-size: 24px;
+    }
+
+    .mt-hero-v2 .mt-lead {
+        font-size: 17px;
+    }
+
+    .mt-hero-v2 .mt-actions .btn-primary,
+    .mt-hero-v2 .mt-actions .btn-secondary {
+        width: 100%;
+    }
+
+    .mt-hero-visual {
+        height: 420px;
+        margin-top: 34px;
+    }
+
+    .mt-hero-phone {
+        width: 290px;
+    }
+
+    .hero-stat {
+        width: 170px;
+        min-height: 74px;
+        padding: 13px 16px;
+        border-radius: 22px;
+    }
+
+    .hero-stat strong {
+        font-size: 24px;
+    }
+
+    .hero-stat span {
+        margin-top: 5px;
+        font-size: 10px;
+    }
+
+    .hero-stat-sales {
+        top: 34px;
+        left: -6px;
+    }
+
+    .hero-stat-partners {
+        top: 176px;
+        right: -6px;
+    }
+
+    .hero-stat-pvz {
+        top: 306px;
+        left: 2px;
+    }
+
+    .mt-referral-grid {
+        grid-template-columns: 1fr;
+        margin: -16px 0 46px;
+    }
+
+    .mt-referral-card {
+        min-height: auto;
+        padding: 26px;
+    }
+
+    .mt-referral-number,
+    .mt-referral-word {
+        margin-bottom: 18px;
+    }
+
+    .mt-section#services {
+        padding-top: 34px;
+        padding-bottom: 34px;
+    }
+
     .mt-hero {
         padding: 46px 0 36px;
         gap: 28px;
@@ -1543,5 +1903,17 @@ table.data tr:last-child td {
 
     .mt-hero h1 {
         font-size: 38px;
+    }
+
+    .mt-hero-v2 h1 {
+        font-size: 36px;
+    }
+
+    .mt-hero-v2 .mt-lead {
+        font-size: 16px;
+    }
+
+    .hero-stat {
+        width: 158px;
     }
 }

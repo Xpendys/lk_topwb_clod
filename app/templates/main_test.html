@@ -94,9 +94,78 @@
 
 {% block content %}
 <div class="main-test">
+    {% if design_v2 %}
+    <section class="mt-hero-v2">
+        <div class="mt-hero-v2-copy">
+            <p class="mt-eyebrow">Реферальная программа Топай в ТОП</p>
+            <h1>
+                Помогайте селлерам расти на
+                <span class="marketplace-lockup" aria-label="Wildberries, Ozon и Яндекс Маркет">
+                    <span class="marketplace-badge market-wb">wb</span>
+                    <span class="marketplace-badge market-ozon">ozon</span>
+                    <span class="marketplace-badge market-yandex">M</span>
+                </span>
+                и зарабатывайте
+            </h1>
+            <p class="mt-lead">
+                Рекомендуйте выкупы, отзывы и продвижение на маркетплейсах. Получайте 10% с оплаченных
+                сделок приглашённых клиентов и 5% со сделок клиентов ваших партнёров.
+            </p>
+            <div class="mt-actions">
+                {% if not user %}
+                    <a href="/register" class="btn-primary big">Стать партнёром</a>
+                    <a href="/login" class="btn-secondary big">Войти в кабинет</a>
+                {% else %}
+                    <a href="/lk" class="btn-primary big">В личный кабинет</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-hero-visual" aria-label="Масштаб сервиса Топай в ТОП">
+            <img
+                class="mt-hero-phone"
+                src="/static/referral-hero-phone.webp"
+                alt="Уведомление о новом заказе на Wildberries в сервисе Топай в ТОП"
+                width="629"
+                height="848"
+                loading="eager"
+                fetchpriority="high"
+            >
+            <div class="hero-stat hero-stat-sales">
+                <strong>1 500+</strong>
+                <span>выкупов каждый день</span>
+            </div>
+            <div class="hero-stat hero-stat-partners">
+                <strong>3 500+</strong>
+                <span>продавцов</span>
+            </div>
+            <div class="hero-stat hero-stat-pvz">
+                <strong>2 000+</strong>
+                <span>ПВЗ</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="mt-referral-grid" aria-label="Условия реферальной программы">
+        <article class="mt-referral-card">
+            <strong class="mt-referral-number">10%</strong>
+            <h2>Сделки ваших клиентов</h2>
+            <p>Получайте вознаграждение с каждой оплаченной услуги приглашённого клиента.</p>
+        </article>
+        <article class="mt-referral-card">
+            <strong class="mt-referral-number">5%</strong>
+            <h2>Второй уровень</h2>
+            <p>Приглашайте партнёров и получайте процент со сделок приведённых ими клиентов.</p>
+        </article>
+        <article class="mt-referral-card">
+            <strong class="mt-referral-word">Пожизненно</strong>
+            <h2>Закрепление клиента</h2>
+            <p>После первой заявки клиент закрепляется за партнёром для следующих сделок.</p>
+        </article>
+    </section>
+    {% else %}
     <section class="mt-hero">
         <div class="mt-hero-copy">
-            {% if design_v2 %}<p class="mt-eyebrow">Реферальная программа Топай в ТОП</p>{% endif %}
             <h1>Выкупы ВБ и Ozon через реферальную систему <span class="gradient-text nowrap">Топай в ТОП</span></h1>
             <p class="mt-lead">
                 Приводите селлеров, которым нужны выкупы ВБ, выкупы Ozon, отзывы и продвижение карточек товаров.
@@ -136,6 +205,7 @@
             <span>аккаунтов с индивидуальной картой оплаты</span>
         </div>
     </section>
+    {% endif %}
 
     <section class="mt-section mt-split" id="services">
         <div>
