@@ -38,25 +38,6 @@ body {
     overflow-x: hidden;
 }
 
-.design-preview-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 18px;
-    min-height: 42px;
-    padding: 8px 20px;
-    background: #3d0f59;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.design-preview-bar a {
-    color: #ffffff;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-}
-
 main {
     flex: 1;
 }
@@ -70,15 +51,6 @@ button,
 input,
 select {
     font: inherit;
-}
-
-@media (max-width: 520px) {
-    .design-preview-bar {
-        justify-content: space-between;
-        gap: 12px;
-        padding-inline: 16px;
-        font-size: 11px;
-    }
 }
 
 /* ===== TOPBAR ===== */

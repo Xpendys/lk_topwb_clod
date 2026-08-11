@@ -58,12 +58,6 @@
     </style>
 </head>
 <body{% if design_v2 %} class="admin-page"{% endif %}>
-    {% if design_v2 %}
-    <div class="design-preview-bar">
-        <span>Тестовый дизайн</span>
-        <a href="/design-v1?next={{ request.url.path }}">Вернуться к текущему дизайну</a>
-    </div>
-    {% endif %}
     <header class="topbar">
         <a href="#" class="brand"><img src="/static/logo.png" alt="Топай в ТОП" class="brand-logo"></a>
         <form method="post" action="/admin/logout" style="display:inline">

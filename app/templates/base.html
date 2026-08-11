@@ -20,12 +20,6 @@
     {% endif %}
 </head>
 <body>
-    {% if design_v2 %}
-    <div class="design-preview-bar">
-        <span>Тестовый дизайн</span>
-        <a href="/design-v1?next={{ request.url.path }}">Вернуться к текущему дизайну</a>
-    </div>
-    {% endif %}
     <header class="topbar">
         <a href="/" class="brand" aria-label="Топай в ТОП — главная">
             <img src="/static/logo.png" alt="Топай в ТОП" class="brand-logo">

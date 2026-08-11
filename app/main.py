@@ -31,8 +31,13 @@ def on_startup() -> None:
 
 def render(request: Request, template: str, **ctx) -> HTMLResponse:
     ctx.setdefault("user", auth.current_user(request))
-    ctx.setdefault("design_v2", request.cookies.get(DESIGN_VERSION_COOKIE) == "v2")
+    ctx.setdefault("design_v2", use_design_v2(request))
     return templates.TemplateResponse(request, template, ctx)
+
+
+def use_design_v2(request: Request) -> bool:
+    """Новый дизайн основной; старый включается только резервным переключателем."""
+    return request.cookies.get(DESIGN_VERSION_COOKIE) != "v1"
 
 
 def preview_redirect_path(request: Request) -> str:
@@ -87,21 +92,21 @@ def main_test(request: Request):
 @app.get("/design-v2")
 def design_v2(request: Request):
     response = RedirectResponse(preview_redirect_path(request), status_code=303)
-    response.set_cookie(
-        DESIGN_VERSION_COOKIE,
-        "v2",
-        max_age=60 * 60 * 24 * 30,
-        httponly=True,
-        samesite="lax",
-        secure=request.url.scheme == "https",
-    )
+    response.delete_cookie(DESIGN_VERSION_COOKIE)
     return response
 
 
 @app.get("/design-v1")
 def design_v1(request: Request):
     response = RedirectResponse(preview_redirect_path(request), status_code=303)
-    response.delete_cookie(DESIGN_VERSION_COOKIE)
+    response.set_cookie(
+        DESIGN_VERSION_COOKIE,
+        "v1",
+        max_age=60 * 60 * 24 * 30,
+        httponly=True,
+        samesite="lax",
+        secure=request.url.scheme == "https",
+    )
     return response
 
 
@@ -313,7 +318,7 @@ def admin_login_get(request: Request):
         {
             "user": None,
             "form": {},
-            "design_v2": request.cookies.get(DESIGN_VERSION_COOKIE) == "v2",
+            "design_v2": use_design_v2(request),
         },
     )
 
@@ -328,7 +333,7 @@ def admin_login_post(request: Request, login: str = Form(...), password: str = F
                 "user": None,
                 "form": {"login": login},
                 "error": "Неверный логин или пароль",
-                "design_v2": request.cookies.get(DESIGN_VERSION_COOKIE) == "v2",
+                "design_v2": use_design_v2(request),
             },
         )
     response = RedirectResponse("/admin", status_code=303)
@@ -362,7 +367,7 @@ def admin_panel(request: Request):
             "users": users,
             "user": None,
             "message": request.query_params.get("msg", ""),
-            "design_v2": request.cookies.get(DESIGN_VERSION_COOKIE) == "v2",
+            "design_v2": use_design_v2(request),
         },
     )
 
