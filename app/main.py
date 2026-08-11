@@ -19,6 +19,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 logger = logging.getLogger(__name__)
 PARTNER_REF_COOKIE = "partner_ref"
+DESIGN_VERSION_COOKIE = "design_version"
 
 app.include_router(webhook.router)
 
@@ -30,7 +31,15 @@ def on_startup() -> None:
 
 def render(request: Request, template: str, **ctx) -> HTMLResponse:
     ctx.setdefault("user", auth.current_user(request))
+    ctx.setdefault("design_v2", request.cookies.get(DESIGN_VERSION_COOKIE) == "v2")
     return templates.TemplateResponse(request, template, ctx)
+
+
+def preview_redirect_path(request: Request) -> str:
+    path = request.query_params.get("next", "/")
+    if not path.startswith("/") or path.startswith("//"):
+        return "/"
+    return path
 
 
 def require_login(request: Request):
@@ -73,6 +82,27 @@ def index(request: Request):
 @app.get("/main-test", response_class=HTMLResponse)
 def main_test(request: Request):
     return render(request, "main_test.html")
+
+
+@app.get("/design-v2")
+def design_v2(request: Request):
+    response = RedirectResponse(preview_redirect_path(request), status_code=303)
+    response.set_cookie(
+        DESIGN_VERSION_COOKIE,
+        "v2",
+        max_age=60 * 60 * 24 * 30,
+        httponly=True,
+        samesite="lax",
+        secure=request.url.scheme == "https",
+    )
+    return response
+
+
+@app.get("/design-v1")
+def design_v1(request: Request):
+    response = RedirectResponse(preview_redirect_path(request), status_code=303)
+    response.delete_cookie(DESIGN_VERSION_COOKIE)
+    return response
 
 
 @app.get("/policy", response_class=HTMLResponse)
@@ -277,7 +307,15 @@ def requisites_post(
 def admin_login_get(request: Request):
     if auth.current_admin(request):
         return RedirectResponse("/admin", status_code=303)
-    return templates.TemplateResponse(request, "admin_login.html", {"user": None, "form": {}})
+    return templates.TemplateResponse(
+        request,
+        "admin_login.html",
+        {
+            "user": None,
+            "form": {},
+            "design_v2": request.cookies.get(DESIGN_VERSION_COOKIE) == "v2",
+        },
+    )
 
 
 @app.post("/admin/login", response_class=HTMLResponse)
@@ -286,7 +324,12 @@ def admin_login_post(request: Request, login: str = Form(...), password: str = F
         return templates.TemplateResponse(
             request,
             "admin_login.html",
-            {"user": None, "form": {"login": login}, "error": "Неверный логин или пароль"},
+            {
+                "user": None,
+                "form": {"login": login},
+                "error": "Неверный логин или пароль",
+                "design_v2": request.cookies.get(DESIGN_VERSION_COOKIE) == "v2",
+            },
         )
     response = RedirectResponse("/admin", status_code=303)
     response.set_cookie(
@@ -315,7 +358,12 @@ def admin_panel(request: Request):
     return templates.TemplateResponse(
         request,
         "admin.html",
-        {"users": users, "user": None, "message": request.query_params.get("msg", "")},
+        {
+            "users": users,
+            "user": None,
+            "message": request.query_params.get("msg", ""),
+            "design_v2": request.cookies.get(DESIGN_VERSION_COOKIE) == "v2",
+        },
     )
 
 
