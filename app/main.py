@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import logging
+import mimetypes
 
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -15,6 +16,8 @@ from .config import settings
 from .db import db_cursor, init_db
 
 app = FastAPI(title="Топай в ТОП · Реферальная программа")
+# Python 3.10 на сервере не знает .webp и отдаёт его как text/plain — Safari такую картинку не показывает
+mimetypes.add_type("image/webp", ".webp")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 logger = logging.getLogger(__name__)
